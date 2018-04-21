@@ -34,6 +34,22 @@ public class UserCentralController {
     @Autowired
     private UserService userService;
 
+    @GetMapping(value = "/sessionTest", produces = "application/json")
+    public Result<SessionUser> sessionTest(
+            @SessionAttribute(name = SESSION_KEY, required = false) SessionUser sessionUser, HttpServletRequest request) {
+
+        Result<SessionUser> result = new Result<>();
+
+        if (sessionUser == null) {
+            User user = new User();
+            user.setId(1);
+            refreshSession(user, request.getSession());
+        }
+
+        result.setData(sessionUser);
+        return result;
+    }
+
     @PostMapping(M_USER_POST_REGISTER)
     public Result<RegisterResponse> register(
             @Valid @ModelAttribute("registerRequest") RegisterRequest registerRequest, HttpSession session) {

@@ -20,6 +20,15 @@ public class SessionUser implements Serializable {
     private String avatar;
     private Integer status;
     private LocalDateTime createTime;
+    private String ticket;
+
+    public String getTicket() {
+        return ticket;
+    }
+
+    public void setTicket(String ticket) {
+        this.ticket = ticket;
+    }
 
     public Integer getId() {
         return id;
