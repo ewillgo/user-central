@@ -1,0 +1,29 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: user-central
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        service-id: config-server
+      name: "${spring.application.name}-config"
+      failFast: true
+      profile: dev
+      label: master
+
+eureka:
+  client:
+    enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: "http://${EUREKA_USER}:${EUREKA_PASSWORD}@localhost:10000/eureka"
+  instance:
+    prefer-ip-address: true
+    lease-expiration-duration-in-seconds: 30
+    lease-renewal-interval-in-seconds: 10
+    status-page-url-path: "/actuator/info"
+    health-check-url-path: "/actuator/health"
