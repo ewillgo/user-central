@@ -4,7 +4,7 @@ import javax.validation.constraints.NotBlank;
 
 import static org.trianglex.usercentral.constant.UserConstant.*;
 
-public class LoginDTO {
+public class LoginRequest {
 
     @NotBlank(message = USERNAME_NOT_BLANK)
     private String username;

@@ -17,4 +17,7 @@ public interface UserConstant {
 
     ConstPair USER_LOGIN_SUCCESS = ConstPair.make(0, "用户登录成功");
     ConstPair USER_NOT_EXISTS = ConstPair.make(101, "账号或密码错误");
+    ConstPair USER_REPEAT = ConstPair.make(102, "注册信息有重复，请重新注册");
+    ConstPair USER_NAME_EXISTS = ConstPair.make(103, "账号已被注册");
+    ConstPair USER_NICKNAME_EXISTS = ConstPair.make(104, "昵称已被占用");
 }

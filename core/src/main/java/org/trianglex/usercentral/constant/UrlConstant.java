@@ -14,4 +14,6 @@ public interface UrlConstant {
     String M_USER_POST_LOGIN = "/login";
     String M_USER_GET_LOGOUT = "/logout";
 
+    String C_SESSION = "/session";
+
 }

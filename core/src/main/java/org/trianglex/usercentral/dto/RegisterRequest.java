@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 
 import static org.trianglex.usercentral.constant.UserConstant.*;
 
-public class RegisterDTO implements DtoAttributes<User> {
+public class RegisterRequest implements DtoAttributes<User> {
 
     @NotBlank(message = USERNAME_NOT_BLANK)
     private String username;

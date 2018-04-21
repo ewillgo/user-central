@@ -10,24 +10,35 @@
     <select id="getUserByUsernameAndPassword" resultType="org.trianglex.usercentral.domain.User">
         select ${fields}
         from t_user
-        where username = #{username}
-              and password = #{password}
-              and status = 1
+        where
+            username = #{username}
+            and password = #{password}
+            and status = 1
         limit 1
     </select>
 
     <select id="getUserById" resultType="org.trianglex.usercentral.domain.User">
         select ${fields}
         from t_user
-        where id = #{userId}
+        where
+            id = #{userId}
         limit 1
     </select>
 
     <select id="getUserByUsername" resultType="org.trianglex.usercentral.domain.User">
         select ${fields}
         from t_user
-        where username = #{username}
-              and status = 1
+        where
+            username = #{username}
+            and status = 1
+        limit 1
+    </select>
+
+    <select id="isUserExists" resultType="int">
+        select count(1)
+        from t_user
+        where
+            ${where}
         limit 1
     </select>
 

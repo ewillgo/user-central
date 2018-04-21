@@ -61,4 +61,26 @@ public class UserService {
     public User getUserByUsername(String username, String fields) {
         return userDAO.getUserByUsername(username, fields);
     }
+
+    /**
+     * 判断账号是否已存在
+     *
+     * @param username 账号
+     * @return
+     */
+    @DataSource(USERCENTRAL)
+    public boolean isUsernameExists(String username) {
+        return userDAO.isUserExists("username = '" + username + "'") > 0;
+    }
+
+    /**
+     * 判断昵称是否已存在
+     *
+     * @param nickname 昵称
+     * @return
+     */
+    @DataSource(USERCENTRAL)
+    public boolean isNicknameExists(String nickname) {
+        return userDAO.isUserExists("nickname = '" + nickname + "'") > 0;
+    }
 }

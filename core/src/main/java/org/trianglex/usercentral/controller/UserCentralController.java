@@ -1,18 +1,24 @@
 package org.trianglex.usercentral.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.*;
 import org.trianglex.common.dto.Result;
 import org.trianglex.common.support.ConstPair;
 import org.trianglex.common.util.PasswordUtils;
 import org.trianglex.common.util.RegexUtils;
 import org.trianglex.usercentral.domain.User;
-import org.trianglex.usercentral.dto.LoginDTO;
-import org.trianglex.usercentral.dto.RegisterDTO;
+import org.trianglex.usercentral.dto.LoginRequest;
+import org.trianglex.usercentral.dto.LoginResponse;
+import org.trianglex.usercentral.dto.RegisterRequest;
+import org.trianglex.usercentral.dto.RegisterResponse;
 import org.trianglex.usercentral.service.UserService;
 import org.trianglex.usercentral.session.SessionUser;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -23,14 +29,30 @@ import static org.trianglex.usercentral.constant.UserConstant.*;
 @RequestMapping(C_USER)
 public class UserCentralController {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserCentralController.class);
+
     @Autowired
     private UserService userService;
 
     @PostMapping(M_USER_POST_REGISTER)
-    public Result<Integer> register(@Valid @ModelAttribute("userDTO") RegisterDTO registerDTO, HttpSession session) {
-        Result<Integer> result = new Result<>();
+    public Result<RegisterResponse> register(
+            @Valid @ModelAttribute("registerRequest") RegisterRequest registerRequest, HttpSession session) {
 
-        User user = registerDTO.toPO(new User());
+        Result<RegisterResponse> result = new Result<>();
+
+        if (userService.isUsernameExists(registerRequest.getUsername())) {
+            result.setStatus(USER_NAME_EXISTS.getStatus());
+            result.setMessage(USER_NAME_EXISTS.getMessage());
+            return result;
+        }
+
+        if (userService.isNicknameExists(registerRequest.getNickname())) {
+            result.setStatus(USER_NICKNAME_EXISTS.getStatus());
+            result.setMessage(USER_NICKNAME_EXISTS.getMessage());
+            return result;
+        }
+
+        User user = registerRequest.toPO(new User());
         user.setSalt(PasswordUtils.salt256());
         user.setPassword(PasswordUtils.password(user.getPassword(), user.getSalt()));
 
@@ -38,24 +60,40 @@ public class UserCentralController {
             user.setEmail(user.getUsername());
         }
 
-        boolean ret = userService.addUser(user);
+        boolean ret;
+
+        try {
+            ret = userService.addUser(user);
+        } catch (Exception e) {
+            if (!(e instanceof DuplicateKeyException)) {
+                logger.error(e.getMessage(), e);
+            }
+            result.setStatus(USER_REPEAT.getStatus());
+            result.setMessage(USER_REPEAT.getMessage());
+            return result;
+        }
+
         ConstPair constPair = ret ? USER_REGISTER_SUCCESS : USER_REGISTER_FAIL;
 
         if (ret) {
             refreshSession(user, session);
         }
 
-        result.setData(user.getId());
+        RegisterResponse registerResponse = new RegisterResponse();
+        registerResponse.setUserId(user.getId());
+        result.setData(registerResponse);
         result.setStatus(constPair.getStatus());
         result.setMessage(constPair.getMessage());
         return result;
     }
 
     @PostMapping(M_USER_POST_LOGIN)
-    public Result login(@Valid @ModelAttribute("loginDTO") LoginDTO loginDTO, HttpSession session) {
-        Result result = new Result();
+    public Result<LoginResponse> login(
+            @Valid @ModelAttribute("loginRequest") LoginRequest loginRequest, HttpSession session) {
 
-        User user = userService.getUserByUsername(loginDTO.getUsername(), "salt");
+        Result<LoginResponse> result = new Result<>();
+
+        User user = userService.getUserByUsername(loginRequest.getUsername(), "salt");
         if (user == null) {
             result.setStatus(USER_NOT_EXISTS.getStatus());
             result.setMessage(USER_NOT_EXISTS.getMessage());
@@ -63,7 +101,7 @@ public class UserCentralController {
         }
 
         user = userService.getUserByUsernameAndPassword(
-                loginDTO.getUsername(), PasswordUtils.password(loginDTO.getPassword(), user.getSalt()), "*");
+                loginRequest.getUsername(), PasswordUtils.password(loginRequest.getPassword(), user.getSalt()), "*");
 
         if (user == null) {
             result.setStatus(USER_NOT_EXISTS.getStatus());
@@ -73,14 +111,20 @@ public class UserCentralController {
 
         refreshSession(user, session);
 
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setUserId(user.getId());
+        result.setData(loginResponse);
         result.setStatus(USER_LOGIN_SUCCESS.getStatus());
         result.setMessage(USER_LOGIN_SUCCESS.getMessage());
         return result;
     }
 
     @GetMapping(M_USER_GET_LOGOUT)
-    public Result logout(HttpSession session) {
-        session.invalidate();
+    public Result logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
         return null;
     }
 

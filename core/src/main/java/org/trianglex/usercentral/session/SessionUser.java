@@ -12,6 +12,7 @@ public class SessionUser implements Serializable {
     private String nickname;
     private Integer gender;
     private String idCard;
+    private String birth;
     private String phone;
     private String email;
     private String wechat;
@@ -58,6 +59,14 @@ public class SessionUser implements Serializable {
 
     public void setIdCard(String idCard) {
         this.idCard = idCard;
+    }
+
+    public String getBirth() {
+        return birth;
+    }
+
+    public void setBirth(String birth) {
+        this.birth = birth;
     }
 
     public String getPhone() {

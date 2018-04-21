@@ -11,8 +11,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.trianglex.common.controller.AbstractMockController;
 import org.trianglex.common.util.JavaBeanUtils;
 import org.trianglex.usercentral.CoreApplication;
-import org.trianglex.usercentral.dto.LoginDTO;
-import org.trianglex.usercentral.dto.RegisterDTO;
+import org.trianglex.usercentral.dto.LoginRequest;
+import org.trianglex.usercentral.dto.RegisterRequest;
 
 import static org.trianglex.usercentral.constant.UrlConstant.*;
 
@@ -24,7 +24,7 @@ public class UserCentralControllerTest extends AbstractMockController<UserCentra
 
     @Test
     public void addUserTest() throws Exception {
-        RegisterDTO userDTO = new RegisterDTO();
+        RegisterRequest userDTO = new RegisterRequest();
         userDTO.setUsername("test@gmail.com");
         userDTO.setPassword(DigestUtils.md5Hex("123456"));
         userDTO.setNickname("窗外的麻雀，在电线杆上多嘴。");
@@ -36,7 +36,7 @@ public class UserCentralControllerTest extends AbstractMockController<UserCentra
 
     @Test
     public void loginTest() throws Exception {
-        LoginDTO loginDTO = new LoginDTO();
+        LoginRequest loginDTO = new LoginRequest();
         loginDTO.setUsername("test@gmail.com");
         loginDTO.setPassword(DigestUtils.md5Hex("123456"));
         loginDTO.setCaptcha("captcha");

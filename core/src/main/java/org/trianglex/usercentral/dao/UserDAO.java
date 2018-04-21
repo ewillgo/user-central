@@ -16,4 +16,6 @@ public interface UserDAO {
     User getUserById(@Param("userId") int userId, @Param("fields") String fields);
 
     User getUserByUsername(@Param("username") String username, @Param("fields") String fields);
+
+    int isUserExists(@Param("where") String where);
 }
