@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public class User {
 
     private Integer id;
+    private String userId;
     private String username;
     private String password;
     private String salt;
@@ -27,6 +28,14 @@ public class User {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getUsername() {
@@ -147,27 +156,5 @@ public class User {
 
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", salt='" + salt + '\'' +
-                ", nickname='" + nickname + '\'' +
-                ", gender=" + gender +
-                ", idCard='" + idCard + '\'' +
-                ", birth='" + birth + '\'' +
-                ", phone='" + phone + '\'' +
-                ", email='" + email + '\'' +
-                ", wechat='" + wechat + '\'' +
-                ", weibo='" + weibo + '\'' +
-                ", avatar='" + avatar + '\'' +
-                ", status=" + status +
-                ", createTime=" + createTime +
-                ", updateTime=" + updateTime +
-                '}';
     }
 }

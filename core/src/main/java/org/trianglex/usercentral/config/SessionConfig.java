@@ -6,12 +6,13 @@ import org.springframework.context.annotation.Import;
 import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.session.web.http.SessionEventHttpSessionListenerAdapter;
 import org.trianglex.usercentral.session.SessionCookieProperties;
+import org.trianglex.usercentral.session.TicketProperties;
 import org.trianglex.usercentral.session.UserSessionListener;
 
 import java.util.Arrays;
 
 @Configuration
-@Import(SessionCookieProperties.class)
+@Import({SessionCookieProperties.class, TicketProperties.class})
 public class SessionConfig {
 
     @Bean

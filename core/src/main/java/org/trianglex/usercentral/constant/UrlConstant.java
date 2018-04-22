@@ -9,11 +9,10 @@ package org.trianglex.usercentral.constant;
  */
 public interface UrlConstant {
 
-    String C_USER = "/user";
+    String C_USER = "/api/user";
     String M_USER_POST_REGISTER = "/register";
     String M_USER_POST_LOGIN = "/login";
     String M_USER_GET_LOGOUT = "/logout";
-
-    String C_SESSION = "/session";
+    String M_USER_POST_VALIDATE_TICKET = "/validateTicket";
 
 }

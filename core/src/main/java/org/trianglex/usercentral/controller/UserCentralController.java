@@ -2,21 +2,21 @@ package org.trianglex.usercentral.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.trianglex.common.dto.Result;
 import org.trianglex.common.support.ConstPair;
 import org.trianglex.common.util.PasswordUtils;
 import org.trianglex.common.util.RegexUtils;
+import org.trianglex.usercentral.domain.Privilege;
 import org.trianglex.usercentral.domain.User;
-import org.trianglex.usercentral.dto.LoginRequest;
-import org.trianglex.usercentral.dto.LoginResponse;
-import org.trianglex.usercentral.dto.RegisterRequest;
-import org.trianglex.usercentral.dto.RegisterResponse;
+import org.trianglex.usercentral.dto.*;
 import org.trianglex.usercentral.service.UserService;
-import org.trianglex.usercentral.session.SessionUser;
+import org.trianglex.usercentral.session.TicketProperties;
+import org.trianglex.usercentral.session.UserCentralSession;
+import org.trianglex.usercentral.util.TicketUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -34,25 +34,12 @@ public class UserCentralController {
     @Autowired
     private UserService userService;
 
-    @GetMapping(value = "/sessionTest", produces = "application/json")
-    public Result<SessionUser> sessionTest(
-            @SessionAttribute(name = SESSION_KEY, required = false) SessionUser sessionUser, HttpServletRequest request) {
-
-        Result<SessionUser> result = new Result<>();
-
-        if (sessionUser == null) {
-            User user = new User();
-            user.setId(1);
-            refreshSession(user, request.getSession());
-        }
-
-        result.setData(sessionUser);
-        return result;
-    }
+    @Autowired
+    private TicketProperties ticketProperties;
 
     @PostMapping(M_USER_POST_REGISTER)
     public Result<RegisterResponse> register(
-            @Valid @ModelAttribute("registerRequest") RegisterRequest registerRequest, HttpSession session) {
+            @Valid @ModelAttribute("registerRequest") RegisterRequest registerRequest) {
 
         Result<RegisterResponse> result = new Result<>();
 
@@ -69,6 +56,7 @@ public class UserCentralController {
         }
 
         User user = registerRequest.toPO(new User());
+        user.setUserId(user.getUserId().toLowerCase().replaceAll("-", ""));
         user.setSalt(PasswordUtils.salt256());
         user.setPassword(PasswordUtils.password(user.getPassword(), user.getSalt()));
 
@@ -89,14 +77,20 @@ public class UserCentralController {
             return result;
         }
 
-        ConstPair constPair = ret ? USER_REGISTER_SUCCESS : USER_REGISTER_FAIL;
-
-        if (ret) {
-            refreshSession(user, session);
-        }
-
         RegisterResponse registerResponse = new RegisterResponse();
         registerResponse.setUserId(user.getId());
+
+        if (ret) {
+            registerResponse.setTicket(getTicket(user.getUserId()));
+            if (StringUtils.isEmpty(registerResponse.getTicket())) {
+                result.setStatus(TICKET_ERROR.getStatus());
+                result.setMessage(TICKET_ERROR.getMessage());
+                return result;
+            }
+        }
+
+        ConstPair constPair = ret ? USER_REGISTER_SUCCESS : USER_REGISTER_FAIL;
+
         result.setData(registerResponse);
         result.setStatus(constPair.getStatus());
         result.setMessage(constPair.getMessage());
@@ -105,7 +99,7 @@ public class UserCentralController {
 
     @PostMapping(M_USER_POST_LOGIN)
     public Result<LoginResponse> login(
-            @Valid @ModelAttribute("loginRequest") LoginRequest loginRequest, HttpSession session) {
+            @Valid @ModelAttribute("loginRequest") LoginRequest loginRequest, HttpServletRequest request) {
 
         Result<LoginResponse> result = new Result<>();
 
@@ -125,28 +119,63 @@ public class UserCentralController {
             return result;
         }
 
-        refreshSession(user, session);
+        String ticket = getTicket(user.getUserId());
+        if (StringUtils.isEmpty(ticket)) {
+            result.setStatus(TICKET_ERROR.getStatus());
+            result.setMessage(TICKET_ERROR.getMessage());
+            return result;
+        }
 
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setUserId(user.getId());
+        loginResponse.setTicket(ticket);
+
         result.setData(loginResponse);
         result.setStatus(USER_LOGIN_SUCCESS.getStatus());
         result.setMessage(USER_LOGIN_SUCCESS.getMessage());
         return result;
     }
 
-    @GetMapping(M_USER_GET_LOGOUT)
-    public Result logout(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate();
-        }
+    @PostMapping(M_USER_POST_VALIDATE_TICKET)
+    public Result<UserCentralSession> validateTicket(
+            @RequestParam("ticket") String ticket,
+            @SessionAttribute(name = SESSION_KEY, required = false) UserCentralSession session) {
+
+
         return null;
     }
 
+    @GetMapping(M_USER_GET_LOGOUT)
+    public Result logout(HttpServletRequest request) {
+
+        Result result = new Result();
+        HttpSession session = request.getSession(false);
+        ConstPair constPair = session != null ? USER_LOGOUT_SUCCESS : USER_LOGOUT_FAIL;
+
+        if (session != null) {
+            session.invalidate();
+        }
+
+        result.setStatus(constPair.getStatus());
+        result.setMessage(constPair.getMessage());
+        return result;
+    }
+
     private void refreshSession(User user, HttpSession session) {
-        SessionUser sessionUser = new SessionUser();
-        BeanUtils.copyProperties(user, sessionUser);
-        session.setAttribute(SESSION_KEY, sessionUser);
+        refreshSession(user, null, session);
+    }
+
+    private void refreshSession(User user, Privilege privilege, HttpSession session) {
+        UserCentralSession userCentralSession = privilege == null
+                ? new UserCentralSession(user)
+                : new UserCentralSession(user, privilege);
+        session.setAttribute(SESSION_KEY, userCentralSession);
+    }
+
+    private String getTicket(String userId) {
+        Ticket ticket = new Ticket();
+        ticket.setUserId(userId);
+        ticket.setTimestamp(System.currentTimeMillis());
+        return TicketUtils.generateTicket(ticket, ticketProperties.getTicketEncryptKey());
     }
 }

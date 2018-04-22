@@ -1,6 +1,7 @@
 -- 用户账号表
 create table t_user (
   id int not null auto_increment primary key comment '主键ID',
+  user_id varchar(64) not null comment '用户ID',
   username varchar(255) not null comment '账号',
   password varchar(255) not null comment '密码',
   salt varchar(255) not null comment '盐值',
@@ -22,14 +23,16 @@ create unique index uniq_user_username on t_user(username);
 create unique index uniq_user_nickname on t_user(nickname);
 create unique index uniq_user_phone on t_user(phone);
 create index idx_user_username_password on t_user(username, password);
+create index idx_user_user_id on t_user(user_id);
 
 -- -------- 权限相关 ----------
 
 -- 权限表
 create table t_privilege (
   id int not null auto_increment primary key comment '主键ID',
-  parent_id int not null default 0 comment '入口权限ID',
-  user_id int not null comment '操作人ID',
+  privilege_id varchar(64) not null comment '权限ID',
+  parent_id varchar(64) null comment '入口权限ID',
+  user_id varchar(64) not null comment '操作人ID',
   name varchar(255) not null comment '权限名称',
   url varchar(1000) not null comment '绑定地址',
   remark varchar(1000) null comment '备注',
@@ -41,7 +44,8 @@ create table t_privilege (
 -- 权限组表
 create table t_privilege_group (
   id int not null auto_increment primary key comment '主键ID',
-  user_id int not null comment '操作人ID',
+  group_id varchar(64) not null comment '组ID',
+  user_id varchar(64) not null comment '操作人ID',
   name varchar(255) not null comment '权限组名称',
   privilege_ids varchar(500) not null comment '权限ID列表',
   status bit not null default 1 comment '状态 0-禁用; 1-启用',

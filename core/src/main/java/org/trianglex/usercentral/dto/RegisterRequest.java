@@ -1,6 +1,7 @@
 package org.trianglex.usercentral.dto;
 
 import org.trianglex.common.dto.DtoAttributes;
+import org.trianglex.common.validation.IsUUID;
 import org.trianglex.usercentral.domain.User;
 
 import javax.validation.constraints.NotBlank;
@@ -9,6 +10,12 @@ import javax.validation.constraints.NotNull;
 import static org.trianglex.usercentral.constant.UserConstant.*;
 
 public class RegisterRequest implements DtoAttributes<User> {
+
+    private static final long serialVersionUID = 1498144726563297831L;
+
+    @NotBlank(message = USERID_NOT_NULL)
+    @IsUUID(message = USERID_NOT_UUID)
+    private String userId;
 
     @NotBlank(message = USERNAME_NOT_BLANK)
     private String username;
@@ -21,6 +28,14 @@ public class RegisterRequest implements DtoAttributes<User> {
 
     @NotNull(message = GENDER_NOT_NULL)
     private Integer gender;
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
     public Integer getGender() {
         return gender;

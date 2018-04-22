@@ -7,7 +7,7 @@ public class SessionUser implements Serializable {
 
     private static final long serialVersionUID = -2500425666676979616L;
 
-    private Integer id;
+    private String userId;
     private String username;
     private String nickname;
     private Integer gender;
@@ -20,22 +20,26 @@ public class SessionUser implements Serializable {
     private String avatar;
     private Integer status;
     private LocalDateTime createTime;
-    private String ticket;
+    private long timestamp;
 
-    public String getTicket() {
-        return ticket;
+    public SessionUser() {
+
     }
 
-    public void setTicket(String ticket) {
-        this.ticket = ticket;
+    public long getTimestamp() {
+        return timestamp;
     }
 
-    public Integer getId() {
-        return id;
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getUsername() {
@@ -133,4 +137,5 @@ public class SessionUser implements Serializable {
     public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
+
 }
