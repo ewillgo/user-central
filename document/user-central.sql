@@ -19,11 +19,11 @@ create table t_user (
   update_time datetime null on update current_timestamp comment '更新时间'
 ) engine Innodb charset utf8;
 
+create unique index uniq_user_user_id on t_user(user_id);
 create unique index uniq_user_username on t_user(username);
 create unique index uniq_user_nickname on t_user(nickname);
 create unique index uniq_user_phone on t_user(phone);
 create index idx_user_username_password on t_user(username, password);
-create index idx_user_user_id on t_user(user_id);
 
 -- -------- 权限相关 ----------
 

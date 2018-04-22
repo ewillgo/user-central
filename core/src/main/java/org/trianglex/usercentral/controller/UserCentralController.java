@@ -104,7 +104,7 @@ public class UserCentralController {
 
     @PostMapping(M_USER_POST_LOGIN)
     public Result<LoginResponse> login(
-            @Valid @ModelAttribute("loginRequest") LoginRequest loginRequest, HttpServletRequest request) {
+            @Valid @ModelAttribute("loginRequest") LoginRequest loginRequest) {
 
         Result<LoginResponse> result = new Result<>();
 
@@ -200,7 +200,6 @@ public class UserCentralController {
             result.setMessage(ACCESS_TOKEN_TIMEOUT.getMessage());
             return result;
         }
-
 
 
         return result;
