@@ -83,8 +83,8 @@ public class UserCentralController {
         if (ret) {
             registerResponse.setTicket(getTicket(user.getUserId()));
             if (StringUtils.isEmpty(registerResponse.getTicket())) {
-                result.setStatus(TICKET_ERROR.getStatus());
-                result.setMessage(TICKET_ERROR.getMessage());
+                result.setStatus(GENERATE_TICKET_ERROR.getStatus());
+                result.setMessage(GENERATE_TICKET_ERROR.getMessage());
                 return result;
             }
         }
@@ -111,7 +111,7 @@ public class UserCentralController {
         }
 
         user = userService.getUserByUsernameAndPassword(
-                loginRequest.getUsername(), PasswordUtils.password(loginRequest.getPassword(), user.getSalt()), "*");
+                loginRequest.getUsername(), PasswordUtils.password(loginRequest.getPassword(), user.getSalt()), "id");
 
         if (user == null) {
             result.setStatus(USER_NOT_EXISTS.getStatus());
@@ -121,8 +121,8 @@ public class UserCentralController {
 
         String ticket = getTicket(user.getUserId());
         if (StringUtils.isEmpty(ticket)) {
-            result.setStatus(TICKET_ERROR.getStatus());
-            result.setMessage(TICKET_ERROR.getMessage());
+            result.setStatus(GENERATE_TICKET_ERROR.getStatus());
+            result.setMessage(GENERATE_TICKET_ERROR.getMessage());
             return result;
         }
 
@@ -138,11 +138,21 @@ public class UserCentralController {
 
     @PostMapping(M_USER_POST_VALIDATE_TICKET)
     public Result<UserCentralSession> validateTicket(
-            @RequestParam("ticket") String ticket,
+            @RequestParam("ticket") String ticketString,
             @SessionAttribute(name = SESSION_KEY, required = false) UserCentralSession session) {
 
+        Result<UserCentralSession> result = new Result<>();
+        Ticket ticket = TicketUtils.parseTicket(ticketString, ticketProperties.getTicketEncryptKey());
 
-        return null;
+        if (ticket == null) {
+            result.setStatus(INCORRECT_TICKET.getStatus());
+            result.setMessage(INCORRECT_TICKET.getMessage());
+            return result;
+        }
+
+
+
+        return result;
     }
 
     @GetMapping(M_USER_GET_LOGOUT)

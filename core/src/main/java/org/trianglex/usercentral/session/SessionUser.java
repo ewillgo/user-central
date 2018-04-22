@@ -20,18 +20,18 @@ public class SessionUser implements Serializable {
     private String avatar;
     private Integer status;
     private LocalDateTime createTime;
-    private long timestamp;
+    private String accessToken;
 
     public SessionUser() {
 
     }
 
-    public long getTimestamp() {
-        return timestamp;
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
     public String getUserId() {

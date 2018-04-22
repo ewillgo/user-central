@@ -4,6 +4,7 @@ import org.trianglex.common.support.ConstPair;
 
 public interface UserConstant {
 
+    int SUCCESS = 0;
     String SESSION_KEY = "user:session";
 
     String USERNAME_NOT_BLANK = "1000#账号不能为空";
@@ -14,19 +15,20 @@ public interface UserConstant {
     String USERID_NOT_NULL = "1005#用户ID不能为空";
     String USERID_NOT_UUID = "1006#用户ID不是UUID/GUID";
 
-    ConstPair USER_VALIDATE_SUCCESS = ConstPair.make(0, "验证成功");
+    ConstPair USER_VALIDATE_SUCCESS = ConstPair.make(SUCCESS, "验证成功");
 
-    ConstPair USER_REGISTER_SUCCESS = ConstPair.make(0, "注册用户成功");
+    ConstPair USER_REGISTER_SUCCESS = ConstPair.make(SUCCESS, "注册用户成功");
     ConstPair USER_REGISTER_FAIL = ConstPair.make(100, "注册用户失败");
 
-    ConstPair USER_LOGIN_SUCCESS = ConstPair.make(0, "用户登录成功");
+    ConstPair USER_LOGIN_SUCCESS = ConstPair.make(SUCCESS, "用户登录成功");
     ConstPair USER_NOT_EXISTS = ConstPair.make(101, "账号或密码错误");
     ConstPair USER_REPEAT = ConstPair.make(102, "注册信息有重复，请重新注册");
     ConstPair USER_NAME_EXISTS = ConstPair.make(103, "账号已被注册");
     ConstPair USER_NICKNAME_EXISTS = ConstPair.make(104, "昵称已被占用");
 
-    ConstPair TICKET_ERROR = ConstPair.make(105, "生成票据失败");
+    ConstPair GENERATE_TICKET_ERROR = ConstPair.make(105, "生成票据失败");
+    ConstPair INCORRECT_TICKET = ConstPair.make(106, "非法票据");
 
-    ConstPair USER_LOGOUT_SUCCESS = ConstPair.make(0, "注销会话成功");
-    ConstPair USER_LOGOUT_FAIL = ConstPair.make(106, "会话不存在");
+    ConstPair USER_LOGOUT_SUCCESS = ConstPair.make(SUCCESS, "注销会话成功");
+    ConstPair USER_LOGOUT_FAIL = ConstPair.make(107, "会话不存在");
 }
