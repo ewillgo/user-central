@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.trianglex.common.util.ToolUtils;
 import org.trianglex.usercentral.CoreApplication;
 import org.trianglex.usercentral.domain.User;
 
@@ -21,8 +22,8 @@ public class UserServiceTest {
 
     @Test
     public void getUserById() {
-        int userId = 1;
-        User user = userService.getUserById(userId, "*");
+        String userId = ToolUtils.getUUID();
+        User user = userService.getUserByUserId(userId, "*");
         logger.info(user.toString());
     }
 

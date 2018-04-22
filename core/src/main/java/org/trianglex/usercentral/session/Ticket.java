@@ -1,4 +1,4 @@
-package org.trianglex.usercentral.dto;
+package org.trianglex.usercentral.session;
 
 public class Ticket {
 

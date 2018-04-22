@@ -13,7 +13,7 @@ public interface UserDAO {
                                       @Param("password") String password,
                                       @Param("fields") String fields);
 
-    User getUserById(@Param("userId") int userId, @Param("fields") String fields);
+    User getUserByUserId(@Param("userId") String userId, @Param("fields") String fields);
 
     User getUserByUsername(@Param("username") String username, @Param("fields") String fields);
 

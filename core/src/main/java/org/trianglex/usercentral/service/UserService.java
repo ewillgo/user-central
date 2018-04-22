@@ -46,8 +46,8 @@ public class UserService {
      * @return
      */
     @DataSource(USERCENTRAL)
-    public User getUserById(int userId, String fields) {
-        return userDAO.getUserById(userId, fields);
+    public User getUserByUserId(String userId, String fields) {
+        return userDAO.getUserByUserId(userId, fields);
     }
 
     /**

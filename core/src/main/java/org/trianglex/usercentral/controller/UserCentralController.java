@@ -12,10 +12,12 @@ import org.trianglex.common.util.PasswordUtils;
 import org.trianglex.common.util.RegexUtils;
 import org.trianglex.usercentral.domain.Privilege;
 import org.trianglex.usercentral.domain.User;
-import org.trianglex.usercentral.dto.*;
+import org.trianglex.usercentral.dto.LoginRequest;
+import org.trianglex.usercentral.dto.LoginResponse;
+import org.trianglex.usercentral.dto.RegisterRequest;
+import org.trianglex.usercentral.dto.RegisterResponse;
 import org.trianglex.usercentral.service.UserService;
-import org.trianglex.usercentral.session.TicketProperties;
-import org.trianglex.usercentral.session.UserCentralSession;
+import org.trianglex.usercentral.session.*;
 import org.trianglex.usercentral.util.TicketUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +38,9 @@ public class UserCentralController {
 
     @Autowired
     private TicketProperties ticketProperties;
+
+    @Autowired
+    private AccessTokenProperties accessTokenProperties;
 
     @PostMapping(M_USER_POST_REGISTER)
     public Result<RegisterResponse> register(
@@ -81,7 +86,7 @@ public class UserCentralController {
         registerResponse.setUserId(user.getId());
 
         if (ret) {
-            registerResponse.setTicket(getTicket(user.getUserId()));
+            registerResponse.setTicket(generateTicket(user.getUserId()));
             if (StringUtils.isEmpty(registerResponse.getTicket())) {
                 result.setStatus(GENERATE_TICKET_ERROR.getStatus());
                 result.setMessage(GENERATE_TICKET_ERROR.getMessage());
@@ -119,7 +124,7 @@ public class UserCentralController {
             return result;
         }
 
-        String ticket = getTicket(user.getUserId());
+        String ticket = generateTicket(user.getUserId());
         if (StringUtils.isEmpty(ticket)) {
             result.setStatus(GENERATE_TICKET_ERROR.getStatus());
             result.setMessage(GENERATE_TICKET_ERROR.getMessage());
@@ -138,8 +143,7 @@ public class UserCentralController {
 
     @PostMapping(M_USER_POST_VALIDATE_TICKET)
     public Result<UserCentralSession> validateTicket(
-            @RequestParam("ticket") String ticketString,
-            @SessionAttribute(name = SESSION_KEY, required = false) UserCentralSession session) {
+            @RequestParam("ticket") String ticketString, HttpServletRequest request) {
 
         Result<UserCentralSession> result = new Result<>();
         Ticket ticket = TicketUtils.parseTicket(ticketString, ticketProperties.getTicketEncryptKey());
@@ -150,12 +154,59 @@ public class UserCentralController {
             return result;
         }
 
+        long currentTimestamp = System.currentTimeMillis();
+        if (ticket.getTimestamp() < currentTimestamp) {
+            result.setStatus(TICKET_TIMEOUT.getStatus());
+            result.setMessage(TICKET_TIMEOUT.getMessage());
+            return result;
+        }
+
+        User user = userService.getUserByUserId(ticket.getUserId(), "*");
+
+        if (user == null) {
+            result.setStatus(INCORRECT_TICKET.getStatus());
+            result.setMessage(INCORRECT_TICKET.getMessage());
+            return result;
+        }
+
+        HttpSession session = request.getSession();
+        UserCentralSession userCentralSession = refreshSession(user, request.getSession());
+        userCentralSession.getUser().setAccessToken(generateAccessToken(user.getUserId(), session.getId()));
+
+        result.setData(userCentralSession);
+        result.setStatus(GENERATE_TICKET_SUCCESS.getStatus());
+        result.setMessage(GENERATE_TICKET_SUCCESS.getMessage());
+        return result;
+    }
+
+    @PostMapping(M_USER_POST_REFRESH)
+    public Result refreshSession(
+            @RequestParam("accessToken") String accessTokenString,
+            HttpServletRequest request,
+            @SessionAttribute(name = SESSION_KEY, required = false) UserCentralSession session) {
+
+        Result result = new Result();
+
+        AccessToken accessToken = TicketUtils.parseAccessToken(accessTokenString, accessTokenProperties.getTokenEncryptKey());
+        if (accessToken == null) {
+            result.setStatus(INCORRECT_ACCESS_TOKEN.getStatus());
+            result.setMessage(INCORRECT_ACCESS_TOKEN.getMessage());
+            return result;
+        }
+
+        long currentTimestamp = System.currentTimeMillis();
+        if (accessToken.getTimestamp() < currentTimestamp) {
+            result.setStatus(ACCESS_TOKEN_TIMEOUT.getStatus());
+            result.setMessage(ACCESS_TOKEN_TIMEOUT.getMessage());
+            return result;
+        }
+
 
 
         return result;
     }
 
-    @GetMapping(M_USER_GET_LOGOUT)
+    @PostMapping(M_USER_GET_LOGOUT)
     public Result logout(HttpServletRequest request) {
 
         Result result = new Result();
@@ -171,21 +222,31 @@ public class UserCentralController {
         return result;
     }
 
-    private void refreshSession(User user, HttpSession session) {
-        refreshSession(user, null, session);
+    private UserCentralSession refreshSession(User user, HttpSession session) {
+        return refreshSession(user, null, session);
     }
 
-    private void refreshSession(User user, Privilege privilege, HttpSession session) {
+    private UserCentralSession refreshSession(User user, Privilege privilege, HttpSession session) {
         UserCentralSession userCentralSession = privilege == null
                 ? new UserCentralSession(user)
                 : new UserCentralSession(user, privilege);
         session.setAttribute(SESSION_KEY, userCentralSession);
+        return userCentralSession;
     }
 
-    private String getTicket(String userId) {
+    private String generateTicket(String userId) {
         Ticket ticket = new Ticket();
         ticket.setUserId(userId);
-        ticket.setTimestamp(System.currentTimeMillis());
+        ticket.setTimestamp(System.currentTimeMillis() + ticketProperties.getTicketMaxAge().toMillis());
         return TicketUtils.generateTicket(ticket, ticketProperties.getTicketEncryptKey());
     }
+
+    private String generateAccessToken(String userId, String sessionId) {
+        AccessToken accessToken = new AccessToken();
+        accessToken.setUserId(userId);
+        accessToken.setSessionId(sessionId);
+        accessToken.setTimestamp(System.currentTimeMillis() + accessTokenProperties.getTokenMaxAge().toMillis());
+        return TicketUtils.generateAccessToken(accessToken, accessTokenProperties.getTokenEncryptKey());
+    }
+
 }

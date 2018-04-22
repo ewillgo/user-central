@@ -3,8 +3,10 @@ package org.trianglex.usercentral.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.trianglex.common.util.AES256Utils;
+import org.trianglex.common.util.DESUtils;
 import org.trianglex.common.util.JsonUtils;
-import org.trianglex.usercentral.dto.Ticket;
+import org.trianglex.usercentral.session.AccessToken;
+import org.trianglex.usercentral.session.Ticket;
 
 import java.io.UnsupportedEncodingException;
 
@@ -14,6 +16,22 @@ public abstract class TicketUtils {
 
     private TicketUtils() {
 
+    }
+
+    public static String generateAccessToken(AccessToken accessToken, String secretKey) {
+        return DESUtils.encodeToUrlSafeString(
+                DESUtils.des3EncodeECB(JsonUtils.toJsonString(accessToken).getBytes(), secretKey));
+    }
+
+    public static AccessToken parseAccessToken(String accessTokenString, String secretKey) {
+        try {
+            byte[] bytes = DESUtils.des3DecodeECB(
+                    DESUtils.decodeFromUrlSafeString(accessTokenString), secretKey);
+            return JsonUtils.parse(new String(bytes, "UTF-8"), AccessToken.class);
+        } catch (UnsupportedEncodingException e) {
+            logger.error(e.getMessage(), e);
+        }
+        return null;
     }
 
     public static String generateTicket(Ticket ticket, String secretKey) {
