@@ -4,11 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.MediaType;
+import org.springframework.session.Session;
+import org.springframework.session.SessionRepository;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.trianglex.common.dto.Result;
 import org.trianglex.common.support.ConstPair;
 import org.trianglex.common.util.PasswordUtils;
@@ -34,13 +34,26 @@ public class UserCentralController {
     private static final Logger logger = LoggerFactory.getLogger(UserCentralController.class);
 
     @Autowired
+    private SessionRepository<Session> repository;
+
+    @Autowired
     private UserService userService;
 
     @Autowired
     private TicketProperties ticketProperties;
 
-    @Autowired
-    private AccessTokenProperties accessTokenProperties;
+//    @Autowired
+//    private AccessTokenProperties accessTokenProperties;
+
+    @GetMapping(value = "/sessionTest", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Result sessionTest(HttpSession session) {
+        Session session1 = repository.findById(session.getId());
+
+        session1.setAttribute("hello", "world");
+
+        repository.save(session1);
+        return new Result();
+    }
 
     @PostMapping(M_USER_POST_REGISTER)
     public Result<RegisterResponse> register(
@@ -175,7 +188,6 @@ public class UserCentralController {
         ValidateTicketResponse response = new ValidateTicketResponse();
         response.setUserId(user.getUserId());
         response.setSessionId(session.getId());
-        response.setMaxAgeInSeconds(session.getMaxInactiveInterval());
 
         result.setData(response);
         result.setStatus(TICKET_VALIDATE_SUCCESS.getStatus());
@@ -195,7 +207,10 @@ public class UserCentralController {
             return result;
         }
 
-        UserCentralSession userCentralSession = refreshSession(null, null, session);
+//        UserCentralSession userCentralSession = refreshSession(null, null, session);
+
+        UserCentralSession userCentralSession =
+                (UserCentralSession) request.getSession(false).getAttribute(SESSION_KEY);
 
         result.setData(userCentralSession);
         result.setStatus(SESSION_REFRESH_SUCCESS.getStatus());
@@ -238,12 +253,12 @@ public class UserCentralController {
         return TicketUtils.generateTicket(ticket, ticketProperties.getTicketEncryptKey());
     }
 
-    private String generateAccessToken(String userId, String sessionId) {
-        AccessToken accessToken = new AccessToken();
-        accessToken.setUserId(userId);
-        accessToken.setSessionId(sessionId);
-        accessToken.setTimestamp(System.currentTimeMillis() + accessTokenProperties.getTokenMaxAge().toMillis());
-        return TicketUtils.generateAccessToken(accessToken, accessTokenProperties.getTokenEncryptKey());
-    }
+//    private String generateAccessToken(String userId, String sessionId) {
+//        AccessToken accessToken = new AccessToken();
+//        accessToken.setUserId(userId);
+//        accessToken.setSessionId(sessionId);
+//        accessToken.setTimestamp(System.currentTimeMillis() + accessTokenProperties.getTokenMaxAge().toMillis());
+//        return TicketUtils.generateAccessToken(accessToken, accessTokenProperties.getTokenEncryptKey());
+//    }
 
 }

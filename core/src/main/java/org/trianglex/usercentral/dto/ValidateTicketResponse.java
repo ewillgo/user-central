@@ -4,7 +4,6 @@ public class ValidateTicketResponse {
 
     private String userId;
     private String sessionId;
-    private int maxAgeInSeconds;
 
     public String getUserId() {
         return userId;
@@ -22,11 +21,4 @@ public class ValidateTicketResponse {
         this.sessionId = sessionId;
     }
 
-    public int getMaxAgeInSeconds() {
-        return maxAgeInSeconds;
-    }
-
-    public void setMaxAgeInSeconds(int maxAgeInSeconds) {
-        this.maxAgeInSeconds = maxAgeInSeconds;
-    }
 }
