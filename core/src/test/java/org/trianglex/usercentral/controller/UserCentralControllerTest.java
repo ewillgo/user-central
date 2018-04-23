@@ -39,7 +39,6 @@ public class UserCentralControllerTest extends AbstractMockController<UserCentra
         LoginRequest loginDTO = new LoginRequest();
         loginDTO.setUsername("test@gmail.com");
         loginDTO.setPassword(DigestUtils.md5Hex("123456"));
-        loginDTO.setCaptcha("captcha");
 
         MvcResult mvcResult = mockPost(C_USER + M_USER_POST_LOGIN, JavaBeanUtils.beanToMap(loginDTO));
         logger.info(mvcResult.getResponse().getContentAsString());

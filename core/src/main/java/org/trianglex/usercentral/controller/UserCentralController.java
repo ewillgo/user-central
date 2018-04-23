@@ -5,17 +5,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.trianglex.common.dto.Result;
 import org.trianglex.common.support.ConstPair;
 import org.trianglex.common.util.PasswordUtils;
 import org.trianglex.common.util.RegexUtils;
 import org.trianglex.usercentral.domain.Privilege;
 import org.trianglex.usercentral.domain.User;
-import org.trianglex.usercentral.dto.LoginRequest;
-import org.trianglex.usercentral.dto.LoginResponse;
-import org.trianglex.usercentral.dto.RegisterRequest;
-import org.trianglex.usercentral.dto.RegisterResponse;
+import org.trianglex.usercentral.dto.*;
 import org.trianglex.usercentral.service.UserService;
 import org.trianglex.usercentral.session.*;
 import org.trianglex.usercentral.util.TicketUtils;
@@ -88,8 +88,8 @@ public class UserCentralController {
         if (ret) {
             registerResponse.setTicket(generateTicket(user.getUserId()));
             if (StringUtils.isEmpty(registerResponse.getTicket())) {
-                result.setStatus(GENERATE_TICKET_ERROR.getStatus());
-                result.setMessage(GENERATE_TICKET_ERROR.getMessage());
+                result.setStatus(TICKET_GENERATE_ERROR.getStatus());
+                result.setMessage(TICKET_GENERATE_ERROR.getMessage());
                 return result;
             }
         }
@@ -126,8 +126,8 @@ public class UserCentralController {
 
         String ticket = generateTicket(user.getUserId());
         if (StringUtils.isEmpty(ticket)) {
-            result.setStatus(GENERATE_TICKET_ERROR.getStatus());
-            result.setMessage(GENERATE_TICKET_ERROR.getMessage());
+            result.setStatus(TICKET_GENERATE_ERROR.getStatus());
+            result.setMessage(TICKET_GENERATE_ERROR.getMessage());
             return result;
         }
 
@@ -142,15 +142,16 @@ public class UserCentralController {
     }
 
     @PostMapping(M_USER_POST_VALIDATE_TICKET)
-    public Result<UserCentralSession> validateTicket(
-            @RequestParam("ticket") String ticketString, HttpServletRequest request) {
+    public Result<ValidateTicketResponse> validateTicket(
+            @ModelAttribute("validateTicketRequest") ValidateTicketRequest validateTicketRequest, HttpSession session) {
 
-        Result<UserCentralSession> result = new Result<>();
-        Ticket ticket = TicketUtils.parseTicket(ticketString, ticketProperties.getTicketEncryptKey());
+        Result<ValidateTicketResponse> result = new Result<>();
+        Ticket ticket = TicketUtils.parseTicket(
+                validateTicketRequest.getTicket(), ticketProperties.getTicketEncryptKey());
 
         if (ticket == null) {
-            result.setStatus(INCORRECT_TICKET.getStatus());
-            result.setMessage(INCORRECT_TICKET.getMessage());
+            result.setStatus(TICKET_INCORRECT.getStatus());
+            result.setMessage(TICKET_INCORRECT.getMessage());
             return result;
         }
 
@@ -164,44 +165,41 @@ public class UserCentralController {
         User user = userService.getUserByUserId(ticket.getUserId(), "*");
 
         if (user == null) {
-            result.setStatus(INCORRECT_TICKET.getStatus());
-            result.setMessage(INCORRECT_TICKET.getMessage());
+            result.setStatus(TICKET_INCORRECT.getStatus());
+            result.setMessage(TICKET_INCORRECT.getMessage());
             return result;
         }
 
-        HttpSession session = request.getSession();
-        UserCentralSession userCentralSession = refreshSession(user, request.getSession());
-        userCentralSession.getUser().setAccessToken(generateAccessToken(user.getUserId(), session.getId()));
+        refreshSession(user, session);
 
-        result.setData(userCentralSession);
-        result.setStatus(GENERATE_TICKET_SUCCESS.getStatus());
-        result.setMessage(GENERATE_TICKET_SUCCESS.getMessage());
+        ValidateTicketResponse response = new ValidateTicketResponse();
+        response.setUserId(user.getUserId());
+        response.setSessionId(session.getId());
+        response.setMaxAgeInSeconds(session.getMaxInactiveInterval());
+
+        result.setData(response);
+        result.setStatus(TICKET_VALIDATE_SUCCESS.getStatus());
+        result.setMessage(TICKET_VALIDATE_SUCCESS.getMessage());
         return result;
     }
 
     @PostMapping(M_USER_POST_REFRESH)
-    public Result refreshSession(
-            @RequestParam("accessToken") String accessTokenString,
-            HttpServletRequest request,
-            @SessionAttribute(name = SESSION_KEY, required = false) UserCentralSession session) {
+    public Result<UserCentralSession> refreshSession(HttpServletRequest request) {
 
-        Result result = new Result();
+        Result<UserCentralSession> result = new Result<>();
+        HttpSession session = request.getSession(false);
 
-        AccessToken accessToken = TicketUtils.parseAccessToken(accessTokenString, accessTokenProperties.getTokenEncryptKey());
-        if (accessToken == null) {
-            result.setStatus(INCORRECT_ACCESS_TOKEN.getStatus());
-            result.setMessage(INCORRECT_ACCESS_TOKEN.getMessage());
+        if (session == null) {
+            result.setStatus(SESSION_TIMEOUT.getStatus());
+            result.setMessage(SESSION_TIMEOUT.getMessage());
             return result;
         }
 
-        long currentTimestamp = System.currentTimeMillis();
-        if (accessToken.getTimestamp() < currentTimestamp) {
-            result.setStatus(ACCESS_TOKEN_TIMEOUT.getStatus());
-            result.setMessage(ACCESS_TOKEN_TIMEOUT.getMessage());
-            return result;
-        }
+        UserCentralSession userCentralSession = refreshSession(null, null, session);
 
-
+        result.setData(userCentralSession);
+        result.setStatus(SESSION_REFRESH_SUCCESS.getStatus());
+        result.setMessage(SESSION_REFRESH_SUCCESS.getMessage());
         return result;
     }
 
