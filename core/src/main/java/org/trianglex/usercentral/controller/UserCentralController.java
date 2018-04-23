@@ -4,9 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.MediaType;
-import org.springframework.session.Session;
-import org.springframework.session.SessionRepository;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.trianglex.common.dto.Result;
@@ -17,12 +14,16 @@ import org.trianglex.usercentral.domain.Privilege;
 import org.trianglex.usercentral.domain.User;
 import org.trianglex.usercentral.dto.*;
 import org.trianglex.usercentral.service.UserService;
-import org.trianglex.usercentral.session.*;
+import org.trianglex.usercentral.session.Ticket;
+import org.trianglex.usercentral.session.TicketProperties;
+import org.trianglex.usercentral.session.UserCentralSession;
 import org.trianglex.usercentral.util.TicketUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.io.IOException;
 
 import static org.trianglex.usercentral.constant.UrlConstant.*;
 import static org.trianglex.usercentral.constant.UserConstant.*;
@@ -33,8 +34,8 @@ public class UserCentralController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserCentralController.class);
 
-    @Autowired
-    private SessionRepository<Session> repository;
+//    @Autowired
+//    private SessionRepository<Session> repository;
 
     @Autowired
     private UserService userService;
@@ -45,19 +46,19 @@ public class UserCentralController {
 //    @Autowired
 //    private AccessTokenProperties accessTokenProperties;
 
-    @GetMapping(value = "/sessionTest", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result sessionTest(HttpSession session) {
-        Session session1 = repository.findById(session.getId());
-
-        session1.setAttribute("hello", "world");
-
-        repository.save(session1);
-        return new Result();
-    }
+//    @GetMapping(value = "/sessionTest", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public Result sessionTest(HttpSession session) {
+//        Session session1 = repository.findById(session.getId());
+//
+//        session1.setAttribute("hello", "world");
+//
+//        repository.save(session1);
+//        return new Result();
+//    }
 
     @PostMapping(M_USER_POST_REGISTER)
     public Result<RegisterResponse> register(
-            @Valid @ModelAttribute("registerRequest") RegisterRequest registerRequest) {
+            @Valid @ModelAttribute("registerRequest") RegisterRequest registerRequest, HttpServletResponse response) {
 
         Result<RegisterResponse> result = new Result<>();
 
@@ -117,7 +118,7 @@ public class UserCentralController {
 
     @PostMapping(M_USER_POST_LOGIN)
     public Result<LoginResponse> login(
-            @Valid @ModelAttribute("loginRequest") LoginRequest loginRequest) {
+            @Valid @ModelAttribute("loginRequest") LoginRequest loginRequest, HttpServletResponse response) {
 
         Result<LoginResponse> result = new Result<>();
 
@@ -128,8 +129,8 @@ public class UserCentralController {
             return result;
         }
 
-        user = userService.getUserByUsernameAndPassword(
-                loginRequest.getUsername(), PasswordUtils.password(loginRequest.getPassword(), user.getSalt()), "id");
+        user = userService.getUserByUsernameAndPassword(loginRequest.getUsername(),
+                PasswordUtils.password(loginRequest.getPassword(), user.getSalt()), "user_id");
 
         if (user == null) {
             result.setStatus(USER_NOT_EXISTS.getStatus());
@@ -148,15 +149,22 @@ public class UserCentralController {
         loginResponse.setUserId(user.getId());
         loginResponse.setTicket(ticket);
 
+        try {
+            response.sendRedirect(C_USER + M_USER_GET_VALIDATE_TICKET + "?ticket=" + ticket);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
+
         result.setData(loginResponse);
         result.setStatus(USER_LOGIN_SUCCESS.getStatus());
         result.setMessage(USER_LOGIN_SUCCESS.getMessage());
         return result;
     }
 
-    @PostMapping(M_USER_POST_VALIDATE_TICKET)
+    @GetMapping(M_USER_GET_VALIDATE_TICKET)
     public Result<ValidateTicketResponse> validateTicket(
-            @ModelAttribute("validateTicketRequest") ValidateTicketRequest validateTicketRequest, HttpSession session) {
+            HttpServletRequest request,
+            @ModelAttribute("validateTicketRequest") ValidateTicketRequest validateTicketRequest) {
 
         Result<ValidateTicketResponse> result = new Result<>();
         Ticket ticket = TicketUtils.parseTicket(
@@ -183,6 +191,7 @@ public class UserCentralController {
             return result;
         }
 
+        HttpSession session = request.getSession();
         refreshSession(user, session);
 
         ValidateTicketResponse response = new ValidateTicketResponse();

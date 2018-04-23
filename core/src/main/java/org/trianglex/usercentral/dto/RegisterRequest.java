@@ -13,7 +13,6 @@ public class RegisterRequest implements DtoAttributes<User> {
 
     private static final long serialVersionUID = 1498144726563297831L;
 
-    @NotBlank(message = USERID_NOT_NULL)
     @IsUUID(message = USERID_NOT_UUID)
     private String userId;
 
