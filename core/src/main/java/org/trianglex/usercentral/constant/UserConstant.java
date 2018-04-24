@@ -33,5 +33,6 @@ public interface UserConstant {
     ConstPair SESSION_TIMEOUT = ConstPair.make(109, "会话超时");
 
     ConstPair USER_INCORRECT_EMAIL = ConstPair.make(110, "邮件格式不正确");
+    ConstPair USER_INCORRECT_IDCARD = ConstPair.make(111, "身份证格式不正确");
 
 }

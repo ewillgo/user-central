@@ -10,6 +10,7 @@ import org.trianglex.common.dto.Result;
 import org.trianglex.common.support.ConstPair;
 import org.trianglex.common.util.PasswordUtils;
 import org.trianglex.common.util.RegexUtils;
+import org.trianglex.common.util.ToolUtils;
 import org.trianglex.usercentral.domain.Privilege;
 import org.trianglex.usercentral.domain.User;
 import org.trianglex.usercentral.dto.*;
@@ -74,18 +75,30 @@ public class UserCentralController {
             return result;
         }
 
+        if (!StringUtils.isEmpty(registerRequest.getEmail())
+                && !RegexUtils.isMatch(registerRequest.getEmail(), RegexUtils.EMAIL)) {
+            result.setStatus(USER_INCORRECT_EMAIL.getStatus());
+            result.setMessage(USER_INCORRECT_EMAIL.getMessage());
+            return result;
+        } else if (StringUtils.isEmpty(registerRequest.getEmail())
+                && RegexUtils.isMatch(registerRequest.getUsername(), RegexUtils.EMAIL)) {
+            registerRequest.setEmail(registerRequest.getUsername());
+        }
+
+        if (!StringUtils.isEmpty(registerRequest.getIdCard())
+                && !RegexUtils.isMatch(registerRequest.getIdCard(), RegexUtils.ID_CARD_18)) {
+            result.setStatus(USER_INCORRECT_IDCARD.getStatus());
+            result.setMessage(USER_INCORRECT_IDCARD.getMessage());
+            return result;
+        } else if (!StringUtils.isEmpty(registerRequest.getIdCard())) {
+            registerRequest.setGender(ToolUtils.extractGender(registerRequest.getIdCard()));
+            registerRequest.setBirth(ToolUtils.extractBirth(registerRequest.getIdCard()));
+        }
+
         User user = registerRequest.toPO(new User());
         user.setUserId(user.getUserId().toLowerCase().replaceAll("-", ""));
         user.setSalt(PasswordUtils.salt256());
         user.setPassword(PasswordUtils.password(user.getPassword(), user.getSalt()));
-
-        if (!StringUtils.isEmpty(user.getEmail()) && !RegexUtils.isMatch(user.getEmail(), RegexUtils.EMAIL)) {
-            result.setStatus(USER_INCORRECT_EMAIL.getStatus());
-            result.setMessage(USER_INCORRECT_EMAIL.getMessage());
-            return result;
-        } else if (StringUtils.isEmpty(user.getEmail()) && RegexUtils.isMatch(user.getUsername(), RegexUtils.EMAIL)) {
-            user.setEmail(user.getUsername());
-        }
 
         boolean ret;
 
@@ -110,6 +123,7 @@ public class UserCentralController {
                 result.setMessage(TICKET_GENERATE_ERROR.getMessage());
                 return result;
             }
+            redirect(registerResponse.getTicket(), response);
         }
 
         ConstPair constPair = ret ? USER_REGISTER_SUCCESS : USER_REGISTER_FAIL;
@@ -149,15 +163,11 @@ public class UserCentralController {
             return result;
         }
 
+        redirect(ticket, response);
+
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setUserId(user.getId());
         loginResponse.setTicket(ticket);
-
-        try {
-            response.sendRedirect(C_USER + M_USER_GET_VALIDATE_TICKET + "?ticket=" + ticket);
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-        }
 
         result.setData(loginResponse);
         result.setStatus(USER_LOGIN_SUCCESS.getStatus());
@@ -245,6 +255,14 @@ public class UserCentralController {
         result.setStatus(constPair.getStatus());
         result.setMessage(constPair.getMessage());
         return result;
+    }
+
+    private void redirect(String ticket, HttpServletResponse response) {
+        try {
+            response.sendRedirect(C_USER + M_USER_GET_VALIDATE_TICKET + "?ticket=" + ticket);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 
     private UserCentralSession refreshSession(User user, HttpSession session) {
