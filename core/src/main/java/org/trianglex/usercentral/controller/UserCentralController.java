@@ -15,9 +15,7 @@ import org.trianglex.usercentral.domain.Privilege;
 import org.trianglex.usercentral.domain.User;
 import org.trianglex.usercentral.dto.*;
 import org.trianglex.usercentral.service.UserService;
-import org.trianglex.usercentral.session.Ticket;
-import org.trianglex.usercentral.session.TicketProperties;
-import org.trianglex.usercentral.session.UserCentralSession;
+import org.trianglex.usercentral.session.*;
 import org.trianglex.usercentral.util.TicketUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,8 +42,8 @@ public class UserCentralController {
     @Autowired
     private TicketProperties ticketProperties;
 
-//    @Autowired
-//    private AccessTokenProperties accessTokenProperties;
+    @Autowired
+    private AccessTokenProperties accessTokenProperties;
 
 //    @GetMapping(value = "/sessionTest", produces = MediaType.APPLICATION_JSON_VALUE)
 //    public Result sessionTest(HttpSession session) {
@@ -100,6 +98,16 @@ public class UserCentralController {
         user.setSalt(PasswordUtils.salt256());
         user.setPassword(PasswordUtils.password(user.getPassword(), user.getSalt()));
 
+        RegisterResponse registerResponse = new RegisterResponse();
+        registerResponse.setUserId(user.getId());
+
+        registerResponse.setTicket(generateTicket(user.getUserId()));
+        if (StringUtils.isEmpty(registerResponse.getTicket())) {
+            result.setStatus(TICKET_GENERATE_ERROR.getStatus());
+            result.setMessage(TICKET_GENERATE_ERROR.getMessage());
+            return result;
+        }
+
         boolean ret;
 
         try {
@@ -113,16 +121,7 @@ public class UserCentralController {
             return result;
         }
 
-        RegisterResponse registerResponse = new RegisterResponse();
-        registerResponse.setUserId(user.getId());
-
         if (ret) {
-            registerResponse.setTicket(generateTicket(user.getUserId()));
-            if (StringUtils.isEmpty(registerResponse.getTicket())) {
-                result.setStatus(TICKET_GENERATE_ERROR.getStatus());
-                result.setMessage(TICKET_GENERATE_ERROR.getMessage());
-                return result;
-            }
             redirect(registerResponse.getTicket(), response);
         }
 
@@ -205,12 +204,12 @@ public class UserCentralController {
             return result;
         }
 
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession(false);
+        session = session == null ? request.getSession() : session;
         refreshSession(user, session);
 
         ValidateTicketResponse response = new ValidateTicketResponse();
-        response.setUserId(user.getUserId());
-        response.setSessionId(session.getId());
+        response.setAccessToken(generateAccessToken(user.getUserId(), session.getId()));
 
         result.setData(response);
         result.setStatus(TICKET_VALIDATE_SUCCESS.getStatus());
@@ -284,12 +283,12 @@ public class UserCentralController {
         return TicketUtils.generateTicket(ticket, ticketProperties.getTicketEncryptKey());
     }
 
-//    private String generateAccessToken(String userId, String sessionId) {
-//        AccessToken accessToken = new AccessToken();
-//        accessToken.setUserId(userId);
-//        accessToken.setSessionId(sessionId);
-//        accessToken.setTimestamp(System.currentTimeMillis() + accessTokenProperties.getTokenMaxAge().toMillis());
-//        return TicketUtils.generateAccessToken(accessToken, accessTokenProperties.getTokenEncryptKey());
-//    }
+    private String generateAccessToken(String userId, String sessionId) {
+        AccessToken accessToken = new AccessToken();
+        accessToken.setUserId(userId);
+        accessToken.setSessionId(sessionId);
+        accessToken.setTimestamp(System.currentTimeMillis() + accessTokenProperties.getTokenMaxAge().toMillis());
+        return TicketUtils.generateAccessToken(accessToken, accessTokenProperties.getTokenEncryptKey());
+    }
 
 }

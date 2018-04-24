@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.time.Duration;
 
-@ConfigurationProperties(prefix = "usercentral.accessToken")
+@ConfigurationProperties(prefix = "usercentral.access-token")
 public class AccessTokenProperties {
 
     private Duration tokenMaxAge;

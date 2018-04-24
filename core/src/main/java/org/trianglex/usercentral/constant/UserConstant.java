@@ -27,7 +27,7 @@ public interface UserConstant {
     ConstPair TICKET_VALIDATE_SUCCESS = ConstPair.make(SUCCESS, "票据校验成功");
     ConstPair TICKET_GENERATE_ERROR = ConstPair.make(106, "票据生成失败");
     ConstPair TICKET_INCORRECT = ConstPair.make(107, "非法票据");
-    ConstPair TICKET_TIMEOUT = ConstPair.make(108, "票据已超时");
+    ConstPair TICKET_TIMEOUT = ConstPair.make(108, "票据已失效");
 
     ConstPair SESSION_REFRESH_SUCCESS = ConstPair.make(SUCCESS, "刷新会话成功");
     ConstPair SESSION_TIMEOUT = ConstPair.make(109, "会话超时");

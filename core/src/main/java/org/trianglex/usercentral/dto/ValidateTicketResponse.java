@@ -2,23 +2,13 @@ package org.trianglex.usercentral.dto;
 
 public class ValidateTicketResponse {
 
-    private String userId;
-    private String sessionId;
+    private String accessToken;
 
-    public String getUserId() {
-        return userId;
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
-
-    public String getSessionId() {
-        return sessionId;
-    }
-
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
-    }
-
 }
