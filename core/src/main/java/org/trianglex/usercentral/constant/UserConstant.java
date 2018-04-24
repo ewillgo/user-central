@@ -31,4 +31,7 @@ public interface UserConstant {
 
     ConstPair SESSION_REFRESH_SUCCESS = ConstPair.make(SUCCESS, "刷新会话成功");
     ConstPair SESSION_TIMEOUT = ConstPair.make(109, "会话超时");
+
+    ConstPair USER_INCORRECT_EMAIL = ConstPair.make(110, "邮件格式不正确");
+
 }

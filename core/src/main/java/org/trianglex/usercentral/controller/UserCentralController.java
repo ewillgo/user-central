@@ -79,7 +79,11 @@ public class UserCentralController {
         user.setSalt(PasswordUtils.salt256());
         user.setPassword(PasswordUtils.password(user.getPassword(), user.getSalt()));
 
-        if (RegexUtils.isMatch(user.getUsername(), RegexUtils.EMAIL)) {
+        if (!StringUtils.isEmpty(user.getEmail()) && !RegexUtils.isMatch(user.getEmail(), RegexUtils.EMAIL)) {
+            result.setStatus(USER_INCORRECT_EMAIL.getStatus());
+            result.setMessage(USER_INCORRECT_EMAIL.getMessage());
+            return result;
+        } else if (StringUtils.isEmpty(user.getEmail()) && RegexUtils.isMatch(user.getUsername(), RegexUtils.EMAIL)) {
             user.setEmail(user.getUsername());
         }
 

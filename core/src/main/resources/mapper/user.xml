@@ -3,8 +3,33 @@
 <mapper namespace="org.trianglex.usercentral.dao.UserDAO">
 
     <insert id="addUser" keyProperty="id" keyColumn="id">
-        insert into t_user (user_id, username, password, salt, nickname, gender, email)
-        values (#{userId}, #{username}, #{password}, #{salt}, #{nickname}, #{gender}, #{email})
+        insert into t_user (
+          user_id,
+          username,
+          password,
+          salt,
+          nickname,
+          gender,
+          email,
+          id_card,
+          birth,
+          phone,
+          wechat,
+          weibo
+        ) values (
+          #{userId},
+          #{username},
+          #{password},
+          #{salt},
+          #{nickname},
+          #{gender},
+          #{email},
+          #{idCard},
+          #{birth},
+          #{phone},
+          #{wechat},
+          #{weibo}
+        )
     </insert>
 
     <select id="getUserByUsernameAndPassword" resultType="org.trianglex.usercentral.domain.User">
