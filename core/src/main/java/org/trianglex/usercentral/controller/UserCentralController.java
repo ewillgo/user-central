@@ -73,6 +73,12 @@ public class UserCentralController {
             return result;
         }
 
+        if (!StringUtils.isEmpty(registerRequest.getPhone()) && userService.isPhoneExists(registerRequest.getPhone())) {
+            result.setStatus(USER_PHONE_EXISTS.getStatus());
+            result.setMessage(USER_PHONE_EXISTS.getMessage());
+            return result;
+        }
+
         if (!StringUtils.isEmpty(registerRequest.getEmail())
                 && !RegexUtils.isMatch(registerRequest.getEmail(), RegexUtils.EMAIL)) {
             result.setStatus(USER_INCORRECT_EMAIL.getStatus());

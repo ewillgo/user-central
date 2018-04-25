@@ -83,4 +83,15 @@ public class UserService {
     public boolean isNicknameExists(String nickname) {
         return userDAO.isUserExists("nickname = '" + nickname + "'") > 0;
     }
+
+    /**
+     * 判断手机号码是否已存在
+     *
+     * @param phone 联系电话
+     * @return
+     */
+    @DataSource(USERCENTRAL)
+    public boolean isPhoneExists(String phone) {
+        return userDAO.isUserExists("phone = '" + phone + "'") > 0;
+    }
 }

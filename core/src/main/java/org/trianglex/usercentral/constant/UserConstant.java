@@ -21,18 +21,20 @@ public interface UserConstant {
     ConstPair USER_REPEAT = ConstPair.make(102, "注册信息有重复，请重新注册");
     ConstPair USER_NAME_EXISTS = ConstPair.make(103, "账号已被注册");
     ConstPair USER_NICKNAME_EXISTS = ConstPair.make(104, "昵称已被占用");
+    ConstPair USER_PHONE_EXISTS = ConstPair.make(105, "联系电话已存在");
     ConstPair USER_LOGOUT_SUCCESS = ConstPair.make(SUCCESS, "注销会话成功");
-    ConstPair USER_LOGOUT_FAIL = ConstPair.make(105, "会话不存在");
+    ConstPair USER_LOGOUT_FAIL = ConstPair.make(106, "会话不存在");
+    ConstPair USER_INCORRECT_EMAIL = ConstPair.make(107, "邮件格式不正确");
+    ConstPair USER_INCORRECT_IDCARD = ConstPair.make(108, "身份证格式不正确");
 
     ConstPair TICKET_VALIDATE_SUCCESS = ConstPair.make(SUCCESS, "票据校验成功");
-    ConstPair TICKET_GENERATE_ERROR = ConstPair.make(106, "票据生成失败");
-    ConstPair TICKET_INCORRECT = ConstPair.make(107, "非法票据");
-    ConstPair TICKET_TIMEOUT = ConstPair.make(108, "票据已失效");
+    ConstPair TICKET_GENERATE_ERROR = ConstPair.make(109, "票据生成失败");
+    ConstPair TICKET_INCORRECT = ConstPair.make(110, "非法票据");
+    ConstPair TICKET_TIMEOUT = ConstPair.make(111, "票据已失效");
 
     ConstPair SESSION_REFRESH_SUCCESS = ConstPair.make(SUCCESS, "刷新会话成功");
-    ConstPair SESSION_TIMEOUT = ConstPair.make(109, "会话超时");
+    ConstPair SESSION_TIMEOUT = ConstPair.make(112, "会话超时");
 
-    ConstPair USER_INCORRECT_EMAIL = ConstPair.make(110, "邮件格式不正确");
-    ConstPair USER_INCORRECT_IDCARD = ConstPair.make(111, "身份证格式不正确");
+
 
 }

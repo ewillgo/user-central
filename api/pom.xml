@@ -17,8 +17,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>org.trianglex</groupId>
+            <artifactId>trianglex-common</artifactId>
         </dependency>
     </dependencies>
 
