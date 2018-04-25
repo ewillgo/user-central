@@ -1,4 +1,4 @@
-package org.trianglex.usercentral.client.dto;
+package org.trianglex.usercentral.client.session;
 
 public class AccessToken {
 
