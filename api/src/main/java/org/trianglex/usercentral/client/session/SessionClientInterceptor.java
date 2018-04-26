@@ -44,10 +44,22 @@ public class SessionClientInterceptor extends HandlerInterceptorAdapter {
                 logger.info("本地缓存已失效，连接远程服务器获取会话...");
                 Result<UserCentralSession> result = remoteRequest.getRemoteSession(accessTokenString);
                 logger.info("获取远程会话结束，结果：{}", JsonUtils.toJsonString(result));
+
                 if (result.getData() == null) {
                     returnResult(ConstPair.make(result.getStatus(), result.getMessage()), response);
                     return false;
                 }
+
+                UserCentralSession userCentralSession = result.getData();
+
+                if (!StringUtils.isEmpty(userCentralSession.getAccessToken())) {
+                    Cookie cookie = new Cookie(COOKIE_NAME, userCentralSession.getAccessToken());
+                    cookie.setMaxAge((int) COOKIE_DURATION.getSeconds());
+                    cookie.setHttpOnly(true);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
+                }
+
                 session = request.getSession();
                 session.setAttribute(SESSION_KEY, result.getData());
             } catch (IOException e) {
