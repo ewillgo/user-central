@@ -61,7 +61,8 @@ public class SessionClientInterceptor extends HandlerInterceptorAdapter {
                 }
 
                 session = request.getSession();
-                session.setAttribute(SESSION_KEY, result.getData());
+                userCentralSession.setAccessToken(null);
+                session.setAttribute(SESSION_KEY, userCentralSession);
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
                 returnResult(ACCESS_TOCKEN_EXCEPTION, response);
