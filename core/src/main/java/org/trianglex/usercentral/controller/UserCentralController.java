@@ -224,14 +224,30 @@ public class UserCentralController {
     }
 
     @PostMapping(M_USER_POST_REFRESH)
-    public Result<UserCentralSession> refreshSession(HttpServletRequest request) {
+    public Result<UserCentralSession> refreshSession(
+            @RequestParam("accessToken") String accessTokenString, HttpServletRequest request) {
 
         Result<UserCentralSession> result = new Result<>();
         HttpSession session = request.getSession(false);
 
         if (session == null) {
-            result.setStatus(SESSION_TIMEOUT.getStatus());
-            result.setMessage(SESSION_TIMEOUT.getMessage());
+            result.setStatus(GLOBAL_SESSION_TIMEOUT.getStatus());
+            result.setMessage(GLOBAL_SESSION_TIMEOUT.getMessage());
+            return result;
+        }
+
+        AccessToken accessToken =
+                TicketUtils.parseAccessToken(accessTokenString, accessTokenProperties.getTokenEncryptKey());
+
+        if (accessToken == null) {
+            result.setStatus(ACCESS_TOKEN_INVALID.getStatus());
+            result.setMessage(ACCESS_TOKEN_INVALID.getMessage());
+            return result;
+        }
+
+        if (accessToken.getTimestamp() < System.currentTimeMillis()) {
+            result.setStatus(ACCESS_TOKEN_TIMEOUT.getStatus());
+            result.setMessage(ACCESS_TOKEN_TIMEOUT.getMessage());
             return result;
         }
 
@@ -241,8 +257,8 @@ public class UserCentralController {
                 (UserCentralSession) request.getSession(false).getAttribute(SESSION_KEY);
 
         result.setData(userCentralSession);
-        result.setStatus(SESSION_REFRESH_SUCCESS.getStatus());
-        result.setMessage(SESSION_REFRESH_SUCCESS.getMessage());
+        result.setStatus(GLOBAL_SESSION_REFRESH_SUCCESS.getStatus());
+        result.setMessage(GLOBAL_SESSION_REFRESH_SUCCESS.getMessage());
         return result;
     }
 

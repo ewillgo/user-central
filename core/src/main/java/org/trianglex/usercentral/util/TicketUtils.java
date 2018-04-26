@@ -19,8 +19,13 @@ public abstract class TicketUtils {
     }
 
     public static String generateAccessToken(AccessToken accessToken, String secretKey) {
-        return DESUtils.encodeToUrlSafeString(
-                DESUtils.des3EncodeECB(JsonUtils.toJsonString(accessToken).getBytes(), secretKey));
+        try {
+            return DESUtils.encodeToUrlSafeString(
+                    DESUtils.des3EncodeECB(JsonUtils.toJsonString(accessToken).getBytes(), secretKey));
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return null;
     }
 
     public static AccessToken parseAccessToken(String accessTokenString, String secretKey) {
@@ -35,8 +40,13 @@ public abstract class TicketUtils {
     }
 
     public static String generateTicket(Ticket ticket, String secretKey) {
-        return AES256Utils.encodeToUrlSafeString(
-                AES256Utils.encrypt(JsonUtils.toJsonString(ticket).getBytes(), secretKey));
+        try {
+            return AES256Utils.encodeToUrlSafeString(
+                    AES256Utils.encrypt(JsonUtils.toJsonString(ticket).getBytes(), secretKey));
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return null;
     }
 
     public static Ticket parseTicket(String ticketString, String secretKey) {
