@@ -5,11 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.trianglex.common.dto.Result;
@@ -40,7 +37,7 @@ public class UserCentralController {
     private static final Logger logger = LoggerFactory.getLogger(UserCentralController.class);
 
     @Autowired
-    private SessionRegistry sessionRegistry;
+    private SessionRepository<Session> repository;
 
     @Autowired
     private UserService userService;
@@ -53,7 +50,9 @@ public class UserCentralController {
 
     @GetMapping(value = "/sessionTest", produces = MediaType.APPLICATION_JSON_VALUE)
     public Result sessionTest(HttpSession session) {
-        sessionRegistry.getSessionInformation();
+        Session session1 = repository.findById(session.getId());
+        session1.setAttribute("name", "123");
+        repository.save(session1);
         return new Result();
     }
 
