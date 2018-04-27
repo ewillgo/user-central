@@ -5,7 +5,8 @@ import org.trianglex.common.support.ConstPair;
 public interface UserConstant {
 
     int SUCCESS = 0;
-    String SESSION_KEY = "user:session";
+    String SESSION_USER = "SESSION:USER";
+    String SESSION_REFRESH_TIMESTAMP = "SESSION:REFRESH:TIMESTAMP";
 
     String USERNAME_NOT_BLANK = "1000#账号不能为空";
     String PASSWORD_NOT_BLANK = "1001#密码不能为空";

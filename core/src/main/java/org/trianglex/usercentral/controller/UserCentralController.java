@@ -4,6 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.Session;
+import org.springframework.session.SessionRepository;
+import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.trianglex.common.dto.Result;
@@ -33,8 +39,8 @@ public class UserCentralController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserCentralController.class);
 
-//    @Autowired
-//    private SessionRepository<Session> repository;
+    @Autowired
+    private SessionRegistry sessionRegistry;
 
     @Autowired
     private UserService userService;
@@ -45,15 +51,11 @@ public class UserCentralController {
     @Autowired
     private AccessTokenProperties accessTokenProperties;
 
-//    @GetMapping(value = "/sessionTest", produces = MediaType.APPLICATION_JSON_VALUE)
-//    public Result sessionTest(HttpSession session) {
-//        Session session1 = repository.findById(session.getId());
-//
-//        session1.setAttribute("hello", "world");
-//
-//        repository.save(session1);
-//        return new Result();
-//    }
+    @GetMapping(value = "/sessionTest", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Result sessionTest(HttpSession session) {
+        sessionRegistry.getSessionInformation();
+        return new Result();
+    }
 
     @PostMapping(M_USER_POST_REGISTER)
     public Result<RegisterResponse> register(
@@ -224,7 +226,7 @@ public class UserCentralController {
     }
 
     @PostMapping(M_USER_POST_REFRESH)
-    public Result<UserCentralSession> refreshSession(
+    public Result<UserCentralSession> session(
             @RequestParam("accessToken") String accessTokenString, HttpServletRequest request) {
 
         Result<UserCentralSession> result = new Result<>();
@@ -253,8 +255,8 @@ public class UserCentralController {
 
 //        UserCentralSession userCentralSession = refreshSession(null, null, session);
 
-        UserCentralSession userCentralSession =
-                (UserCentralSession) request.getSession(false).getAttribute(SESSION_KEY);
+        UserCentralSession userCentralSession = (UserCentralSession) session.getAttribute(SESSION_USER);
+        session.setAttribute(SESSION_REFRESH_TIMESTAMP, System.currentTimeMillis());
 
         result.setData(userCentralSession);
         result.setStatus(GLOBAL_SESSION_REFRESH_SUCCESS.getStatus());
@@ -294,7 +296,7 @@ public class UserCentralController {
         UserCentralSession userCentralSession = privilege == null
                 ? new UserCentralSession(user)
                 : new UserCentralSession(user, privilege);
-        session.setAttribute(SESSION_KEY, userCentralSession);
+        session.setAttribute(SESSION_USER, userCentralSession);
         return userCentralSession;
     }
 
