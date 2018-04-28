@@ -11,7 +11,6 @@ public class UserCentralSession implements Serializable {
     private static final long serialVersionUID = -5893500963169820890L;
     private SessionUser user = new SessionUser();
     private SessionUserPrivilege privilege = new SessionUserPrivilege();
-    private String accessToken;
 
     public UserCentralSession() {
 
@@ -24,14 +23,6 @@ public class UserCentralSession implements Serializable {
     public UserCentralSession(User user, Privilege privilege) {
         BeanUtils.copyProperties(user, this.user);
         BeanUtils.copyProperties(privilege, this.privilege);
-    }
-
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
     }
 
     public SessionUser getUser() {

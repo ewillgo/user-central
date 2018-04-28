@@ -41,27 +41,25 @@ public class SessionClientInterceptor extends HandlerInterceptorAdapter {
         HttpSession session = request.getSession(false);
         if (session == null) {
             try {
-                logger.info("本地缓存已失效，连接远程服务器获取会话...");
-                Result<UserCentralSession> result = remoteRequest.getRemoteSession(accessTokenString);
-                logger.info("获取远程会话结束，结果：{}", JsonUtils.toJsonString(result));
+                Result<RemoteSession> result = remoteRequest.getRemoteSession(accessTokenString);
 
                 if (result.getData() == null) {
                     returnResult(ConstPair.make(result.getStatus(), result.getMessage()), response);
                     return false;
                 }
 
-                UserCentralSession userCentralSession = result.getData();
+                RemoteSession remoteSession = result.getData();
+                UserCentralSession userCentralSession = remoteSession.getUserCentralSession();
 
-                if (!StringUtils.isEmpty(userCentralSession.getAccessToken())) {
-                    Cookie cookie = new Cookie(COOKIE_NAME, userCentralSession.getAccessToken());
-                    cookie.setMaxAge((int) COOKIE_DURATION.getSeconds());
+                if (!StringUtils.isEmpty(remoteSession.getRemoteAccessToken().getToken())) {
+                    Cookie cookie = new Cookie(COOKIE_NAME, remoteSession.getRemoteAccessToken().getToken());
+                    cookie.setMaxAge((int) remoteSession.getRemoteAccessToken().getMaxAge());
                     cookie.setHttpOnly(true);
                     cookie.setPath("/");
                     response.addCookie(cookie);
                 }
 
                 session = request.getSession();
-                userCentralSession.setAccessToken(null);
                 session.setAttribute(SESSION_KEY, userCentralSession);
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);

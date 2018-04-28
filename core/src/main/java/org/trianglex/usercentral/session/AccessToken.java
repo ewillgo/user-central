@@ -4,7 +4,7 @@ public class AccessToken {
 
     private String userId;
     private String sessionId;
-    private long timestamp;
+    private long maxAge;
 
     public String getUserId() {
         return userId;
@@ -22,11 +22,11 @@ public class AccessToken {
         this.sessionId = sessionId;
     }
 
-    public long getTimestamp() {
-        return timestamp;
+    public long getMaxAge() {
+        return maxAge;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public void setMaxAge(long maxAge) {
+        this.maxAge = maxAge;
     }
 }

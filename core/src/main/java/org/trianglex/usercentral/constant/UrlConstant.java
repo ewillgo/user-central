@@ -14,6 +14,6 @@ public interface UrlConstant {
     String M_USER_POST_LOGIN = "/login";
     String M_USER_GET_LOGOUT = "/logout";
     String M_USER_GET_VALIDATE_TICKET = "/validateTicket";
-    String M_USER_POST_REFRESH = "/refreshSession";
+    String M_USER_POST_GET_SESSION = "/getSession";
 
 }

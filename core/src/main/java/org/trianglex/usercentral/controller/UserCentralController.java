@@ -37,7 +37,7 @@ public class UserCentralController {
     private static final Logger logger = LoggerFactory.getLogger(UserCentralController.class);
 
     @Autowired
-    private SessionRepository<Session> repository;
+    private SessionRepository repository;
 
     @Autowired
     private UserService userService;
@@ -49,10 +49,16 @@ public class UserCentralController {
     private AccessTokenProperties accessTokenProperties;
 
     @GetMapping(value = "/sessionTest", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result sessionTest(HttpSession session) {
-        Session session1 = repository.findById(session.getId());
-        session1.setAttribute("name", "123");
-        repository.save(session1);
+    public Result sessionTest(HttpServletRequest request) {
+
+        Session session;
+        if (request.getSession(false) == null) {
+            request.getSession().setAttribute("name", "adf");
+        } else {
+            session = repository.findById(request.getSession(false).getId());
+            repository.save(session);
+        }
+
         return new Result();
     }
 
@@ -224,18 +230,11 @@ public class UserCentralController {
         return result;
     }
 
-    @PostMapping(M_USER_POST_REFRESH)
-    public Result<UserCentralSession> session(
-            @RequestParam("accessToken") String accessTokenString, HttpServletRequest request) {
+    @SuppressWarnings("unchecked")
+    @PostMapping(M_USER_POST_GET_SESSION)
+    public Result<RemoteSession> getSession(@RequestParam("accessToken") String accessTokenString) {
 
-        Result<UserCentralSession> result = new Result<>();
-        HttpSession session = request.getSession(false);
-
-        if (session == null) {
-            result.setStatus(GLOBAL_SESSION_TIMEOUT.getStatus());
-            result.setMessage(GLOBAL_SESSION_TIMEOUT.getMessage());
-            return result;
-        }
+        Result<RemoteSession> result = new Result<>();
 
         AccessToken accessToken =
                 TicketUtils.parseAccessToken(accessTokenString, accessTokenProperties.getTokenEncryptKey());
@@ -246,18 +245,22 @@ public class UserCentralController {
             return result;
         }
 
-        if (accessToken.getTimestamp() < System.currentTimeMillis()) {
-            result.setStatus(ACCESS_TOKEN_TIMEOUT.getStatus());
-            result.setMessage(ACCESS_TOKEN_TIMEOUT.getMessage());
+        Session session = repository.findById(accessToken.getSessionId());
+
+        if (session == null) {
+            result.setStatus(GLOBAL_SESSION_TIMEOUT.getStatus());
+            result.setMessage(GLOBAL_SESSION_TIMEOUT.getMessage());
             return result;
         }
 
-//        UserCentralSession userCentralSession = refreshSession(null, null, session);
+        UserCentralSession userCentralSession = session.getAttribute(SESSION_USER);
+        repository.save(session);
 
-        UserCentralSession userCentralSession = (UserCentralSession) session.getAttribute(SESSION_USER);
-        session.setAttribute(SESSION_REFRESH_TIMESTAMP, System.currentTimeMillis());
+        RemoteSession remoteSession = new RemoteSession();
+        remoteSession.setUserCentralSession(userCentralSession);
+        remoteSession.setRemoteAccessToken(new RemoteAccessToken(accessTokenString, accessToken.getMaxAge()));
 
-        result.setData(userCentralSession);
+        result.setData(remoteSession);
         result.setStatus(GLOBAL_SESSION_REFRESH_SUCCESS.getStatus());
         result.setMessage(GLOBAL_SESSION_REFRESH_SUCCESS.getMessage());
         return result;
@@ -310,7 +313,7 @@ public class UserCentralController {
         AccessToken accessToken = new AccessToken();
         accessToken.setUserId(userId);
         accessToken.setSessionId(sessionId);
-        accessToken.setTimestamp(System.currentTimeMillis() + accessTokenProperties.getTokenMaxAge().toMillis());
+        accessToken.setMaxAge(accessTokenProperties.getTokenMaxAge().getSeconds());
         return TicketUtils.generateAccessToken(accessToken, accessTokenProperties.getTokenEncryptKey());
     }
 
