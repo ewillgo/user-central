@@ -3,6 +3,7 @@ package org.trianglex.usercentral.dto;
 import org.trianglex.common.dto.DtoAttributes;
 import org.trianglex.common.validation.IsUUID;
 import org.trianglex.usercentral.domain.User;
+import org.trianglex.usercentral.enums.ThirdType;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -35,22 +36,46 @@ public class RegisterRequest implements DtoAttributes<User> {
     private String wechat;
     private String weibo;
     private String thirdId;
-    private Integer thirdType;
+    private ThirdType thirdType;
 
-    public String getThirdId() {
-        return thirdId;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setThirdId(String thirdId) {
-        this.thirdId = thirdId;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public Integer getThirdType() {
-        return thirdType;
+    public String getUsername() {
+        return username;
     }
 
-    public void setThirdType(Integer thirdType) {
-        this.thirdType = thirdType;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public Integer getGender() {
+        return gender;
+    }
+
+    public void setGender(Integer gender) {
+        this.gender = gender;
     }
 
     public String getIdCard() {
@@ -101,44 +126,19 @@ public class RegisterRequest implements DtoAttributes<User> {
         this.weibo = weibo;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getThirdId() {
+        return thirdId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setThirdId(String thirdId) {
+        this.thirdId = thirdId;
     }
 
-    public Integer getGender() {
-        return gender;
+    public ThirdType getThirdType() {
+        return thirdType;
     }
 
-    public void setGender(Integer gender) {
-        this.gender = gender;
+    public void setThirdType(ThirdType thirdType) {
+        this.thirdType = thirdType;
     }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
 }

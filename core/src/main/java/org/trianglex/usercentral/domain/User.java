@@ -1,5 +1,7 @@
 package org.trianglex.usercentral.domain;
 
+import org.trianglex.usercentral.enums.ThirdType;
+
 import java.time.LocalDateTime;
 
 public class User {
@@ -18,7 +20,7 @@ public class User {
     private String wechat;
     private String weibo;
     private String thirdId;
-    private Integer thirdType;
+    private ThirdType thirdType;
     private String avatar;
     private Integer status;
     private LocalDateTime createTime;
@@ -136,11 +138,11 @@ public class User {
         this.thirdId = thirdId;
     }
 
-    public Integer getThirdType() {
+    public ThirdType getThirdType() {
         return thirdType;
     }
 
-    public void setThirdType(Integer thirdType) {
+    public void setThirdType(ThirdType thirdType) {
         this.thirdType = thirdType;
     }
 
