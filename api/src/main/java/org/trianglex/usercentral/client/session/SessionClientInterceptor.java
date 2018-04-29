@@ -10,6 +10,7 @@ import org.springframework.web.util.WebUtils;
 import org.trianglex.common.dto.Result;
 import org.trianglex.common.support.ConstPair;
 import org.trianglex.common.util.JsonUtils;
+import org.trianglex.usercentral.session.UcSession;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
@@ -17,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Optional;
 
 import static org.trianglex.usercentral.client.constant.ClientConstant.*;
 
@@ -32,7 +34,9 @@ public class SessionClientInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
         Cookie uctoken = WebUtils.getCookie(request, COOKIE_NAME);
-        String accessTokenString = uctoken != null ? uctoken.getValue() : request.getParameter("accessToken");
+        String accessTokenString = Optional.ofNullable(uctoken)
+                .map(Cookie::getValue).orElseGet(() -> request.getParameter("accessToken"));
+
         if (StringUtils.isEmpty(accessTokenString)) {
             returnResult(ACCESS_TOCKEN_INVALIDATE, response);
             return false;
@@ -41,26 +45,26 @@ public class SessionClientInterceptor extends HandlerInterceptorAdapter {
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute(SESSION_USER) == null) {
             try {
-                Result<RemoteSession> result = remoteRequest.getRemoteSession(accessTokenString);
+                Result<UcSession> result = remoteRequest.getRemoteSession(accessTokenString);
 
                 if (result.getData() == null) {
                     returnResult(ConstPair.make(result.getStatus(), result.getMessage()), response);
                     return false;
                 }
 
-                RemoteSession remoteSession = result.getData();
-                UserCentralSession userCentralSession = remoteSession.getUserCentralSession();
+                UcSession ucSession = result.getData();
+                UcSession.SessionUser sessionUser = ucSession.getSessionUser();
 
-                if (!StringUtils.isEmpty(remoteSession.getRemoteAccessToken().getToken())) {
-                    Cookie cookie = new Cookie(COOKIE_NAME, remoteSession.getRemoteAccessToken().getToken());
-                    cookie.setMaxAge((int) remoteSession.getRemoteAccessToken().getMaxAge());
+                if (!StringUtils.isEmpty(ucSession.getSessionAccessToken().getToken())) {
+                    Cookie cookie = new Cookie(COOKIE_NAME, ucSession.getSessionAccessToken().getToken());
+                    cookie.setMaxAge((int) ucSession.getSessionAccessToken().getMaxAge());
                     cookie.setHttpOnly(true);
                     cookie.setPath("/");
                     response.addCookie(cookie);
                 }
 
                 session = request.getSession();
-                session.setAttribute(SESSION_USER, userCentralSession);
+                session.setAttribute(SESSION_USER, sessionUser);
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
                 returnResult(ACCESS_TOCKEN_EXCEPTION, response);

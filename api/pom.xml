@@ -20,6 +20,10 @@
             <groupId>org.trianglex</groupId>
             <artifactId>trianglex-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.trianglex.usercentral</groupId>
+            <artifactId>user-central-common</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
