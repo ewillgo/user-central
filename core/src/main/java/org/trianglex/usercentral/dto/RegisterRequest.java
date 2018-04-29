@@ -34,6 +34,24 @@ public class RegisterRequest implements DtoAttributes<User> {
     private String email;
     private String wechat;
     private String weibo;
+    private String thirdId;
+    private Integer thirdType;
+
+    public String getThirdId() {
+        return thirdId;
+    }
+
+    public void setThirdId(String thirdId) {
+        this.thirdId = thirdId;
+    }
+
+    public Integer getThirdType() {
+        return thirdType;
+    }
+
+    public void setThirdType(Integer thirdType) {
+        this.thirdType = thirdType;
+    }
 
     public String getIdCard() {
         return idCard;

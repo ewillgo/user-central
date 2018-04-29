@@ -14,7 +14,7 @@ create table t_user (
   wechat varchar(255) null comment '微信号',
   weibo varchar(1000) null comment '微博地址',
   third_id varchar(255) null comment '第三方平台ID',
-  third_type int null default 0 comment '',
+  third_type tinyint null default 0 comment '第三方平台类型',
   avatar varchar(255) null comment '头像',
   status bit not null default 1 comment '账号状态 0-禁用 1-启用',
   create_time datetime not null default current_timestamp comment '创建时间',

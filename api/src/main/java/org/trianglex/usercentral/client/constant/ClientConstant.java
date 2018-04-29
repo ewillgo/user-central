@@ -4,7 +4,7 @@ import org.trianglex.common.support.ConstPair;
 
 public interface ClientConstant {
 
-    String SESSION_KEY = "user:session";
+    String SESSION_USER = "SESSION:USER";
     String COOKIE_NAME = "uctoken";
 
     ConstPair ACCESS_TOCKEN_INVALIDATE = ConstPair.make(100000, "令牌无效");

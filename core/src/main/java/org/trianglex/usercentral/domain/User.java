@@ -17,6 +17,8 @@ public class User {
     private String email;
     private String wechat;
     private String weibo;
+    private String thirdId;
+    private Integer thirdType;
     private String avatar;
     private Integer status;
     private LocalDateTime createTime;
@@ -124,6 +126,22 @@ public class User {
 
     public void setWeibo(String weibo) {
         this.weibo = weibo;
+    }
+
+    public String getThirdId() {
+        return thirdId;
+    }
+
+    public void setThirdId(String thirdId) {
+        this.thirdId = thirdId;
+    }
+
+    public Integer getThirdType() {
+        return thirdType;
+    }
+
+    public void setThirdType(Integer thirdType) {
+        this.thirdType = thirdType;
     }
 
     public String getAvatar() {

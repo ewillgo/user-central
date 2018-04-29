@@ -14,9 +14,9 @@ public interface UserConstant {
     String USERID_NOT_UUID = "1004#用户ID不是UUID/GUID";
     String TICKET_NOT_BLANK = "1005#票据不能为空";
 
-    ConstPair USER_REGISTER_SUCCESS = ConstPair.make(SUCCESS, "注册用户成功");
-    ConstPair USER_REGISTER_FAIL = ConstPair.make(100, "注册用户失败");
-    ConstPair USER_LOGIN_SUCCESS = ConstPair.make(SUCCESS, "用户登录成功");
+    ConstPair USER_REGISTER_SUCCESS = ConstPair.make(SUCCESS, "账号注册成功");
+    ConstPair USER_REGISTER_FAIL = ConstPair.make(100, "账号注册失败");
+    ConstPair USER_LOGIN_SUCCESS = ConstPair.make(SUCCESS, "账号登录成功");
     ConstPair USER_NOT_EXISTS = ConstPair.make(101, "账号或密码错误");
     ConstPair USER_REPEAT = ConstPair.make(102, "注册信息有重复，请重新注册");
     ConstPair USER_NAME_EXISTS = ConstPair.make(103, "账号已被注册");

@@ -4,31 +4,35 @@
 
     <insert id="addUser" keyProperty="id" keyColumn="id">
         insert into t_user (
-          user_id,
-          username,
-          password,
-          salt,
-          nickname,
-          gender,
-          email,
-          id_card,
-          birth,
-          phone,
-          wechat,
-          weibo
+            user_id,
+            username,
+            password,
+            salt,
+            nickname,
+            gender,
+            email,
+            id_card,
+            birth,
+            phone,
+            wechat,
+            weibo,
+            third_id,
+            third_type
         ) values (
-          #{userId},
-          #{username},
-          #{password},
-          #{salt},
-          #{nickname},
-          #{gender},
-          #{email},
-          #{idCard},
-          #{birth},
-          #{phone},
-          #{wechat},
-          #{weibo}
+            #{userId},
+            #{username},
+            #{password},
+            #{salt},
+            #{nickname},
+            #{gender},
+            #{email},
+            #{idCard},
+            #{birth},
+            #{phone},
+            #{wechat},
+            #{weibo},
+            #{thirdId},
+            #{thirdType}
         )
     </insert>
 

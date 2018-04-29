@@ -31,15 +31,15 @@ public class SessionClientInterceptor extends HandlerInterceptorAdapter {
     @SuppressWarnings("unchecked")
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        Cookie ucToken = WebUtils.getCookie(request, COOKIE_NAME);
-        String accessTokenString = ucToken != null ? ucToken.getValue() : request.getParameter("accessToken");
+        Cookie uctoken = WebUtils.getCookie(request, COOKIE_NAME);
+        String accessTokenString = uctoken != null ? uctoken.getValue() : request.getParameter("accessToken");
         if (StringUtils.isEmpty(accessTokenString)) {
             returnResult(ACCESS_TOCKEN_INVALIDATE, response);
             return false;
         }
 
         HttpSession session = request.getSession(false);
-        if (session == null) {
+        if (session == null || session.getAttribute(SESSION_USER) == null) {
             try {
                 Result<RemoteSession> result = remoteRequest.getRemoteSession(accessTokenString);
 
@@ -60,7 +60,7 @@ public class SessionClientInterceptor extends HandlerInterceptorAdapter {
                 }
 
                 session = request.getSession();
-                session.setAttribute(SESSION_KEY, userCentralSession);
+                session.setAttribute(SESSION_USER, userCentralSession);
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
                 returnResult(ACCESS_TOCKEN_EXCEPTION, response);

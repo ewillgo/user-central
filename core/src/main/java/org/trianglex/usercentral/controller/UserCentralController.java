@@ -134,11 +134,11 @@ public class UserCentralController {
             return result;
         }
 
-        if (ret) {
-            redirect(registerResponse.getTicket(), response);
-        }
-
         ConstPair constPair = ret ? USER_REGISTER_SUCCESS : USER_REGISTER_FAIL;
+
+        if (ret) {
+            redirect(registerResponse.getTicket(), constPair.getStatus(), constPair.getMessage(), response);
+        }
 
         result.setData(registerResponse);
         result.setStatus(constPair.getStatus());
@@ -175,7 +175,7 @@ public class UserCentralController {
             return result;
         }
 
-        redirect(ticket, response);
+        redirect(ticket, USER_LOGIN_SUCCESS.getStatus(), USER_LOGIN_SUCCESS.getMessage(), response);
 
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setUserId(user.getId());
@@ -225,8 +225,10 @@ public class UserCentralController {
         response.setAccessToken(generateAccessToken(user.getUserId(), session.getId()));
 
         result.setData(response);
-        result.setStatus(TICKET_VALIDATE_SUCCESS.getStatus());
-        result.setMessage(TICKET_VALIDATE_SUCCESS.getMessage());
+        result.setStatus(StringUtils.isEmpty(validateTicketRequest.getStatus())
+                ? TICKET_VALIDATE_SUCCESS.getStatus() : validateTicketRequest.getStatus());
+        result.setMessage(StringUtils.isEmpty(validateTicketRequest.getMessage())
+                ? TICKET_VALIDATE_SUCCESS.getMessage() : validateTicketRequest.getMessage());
         return result;
     }
 
@@ -282,9 +284,11 @@ public class UserCentralController {
         return result;
     }
 
-    private void redirect(String ticket, HttpServletResponse response) {
+    private void redirect(String ticket, Integer status, String message, HttpServletResponse response) {
         try {
-            response.sendRedirect(C_USER + M_USER_GET_VALIDATE_TICKET + "?ticket=" + ticket);
+            ;
+            response.sendRedirect(String.format("%s%s?ticket=%s&status=%d&message=%s",
+                    C_USER, M_USER_GET_VALIDATE_TICKET, ticket, status, ToolUtils.encodeUrl(message)));
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
