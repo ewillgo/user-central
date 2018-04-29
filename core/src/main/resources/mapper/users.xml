@@ -3,7 +3,7 @@
 <mapper namespace="org.trianglex.usercentral.dao.UserDAO">
 
     <insert id="addUser" keyProperty="id" keyColumn="id">
-        insert into t_user (
+        insert into t_users (
             user_id,
             username,
             password,
@@ -38,7 +38,7 @@
 
     <select id="getUserByUsernameAndPassword" resultType="org.trianglex.usercentral.domain.User">
         select ${fields}
-        from t_user
+        from t_users
         where
             username = #{username}
             and password = #{password}
@@ -48,7 +48,7 @@
 
     <select id="getUserByUserId" resultType="org.trianglex.usercentral.domain.User">
         select ${fields}
-        from t_user
+        from t_users
         where
             user_id = #{userId}
         limit 1
@@ -56,7 +56,7 @@
 
     <select id="getUserByUsername" resultType="org.trianglex.usercentral.domain.User">
         select ${fields}
-        from t_user
+        from t_users
         where
             username = #{username}
             and status = 1
@@ -65,7 +65,7 @@
 
     <select id="isUserExists" resultType="int">
         select count(1)
-        from t_user
+        from t_users
         where
             ${where}
         limit 1

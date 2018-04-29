@@ -2,11 +2,12 @@ package org.trianglex.usercentral.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.MediaType;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.trianglex.common.dto.Result;
@@ -14,9 +15,10 @@ import org.trianglex.common.support.ConstPair;
 import org.trianglex.common.util.PasswordUtils;
 import org.trianglex.common.util.RegexUtils;
 import org.trianglex.common.util.ToolUtils;
-import org.trianglex.usercentral.domain.Privilege;
 import org.trianglex.usercentral.domain.User;
+import org.trianglex.usercentral.domain.UserPrivilege;
 import org.trianglex.usercentral.dto.*;
+import org.trianglex.usercentral.service.UserPrivilegeService;
 import org.trianglex.usercentral.service.UserService;
 import org.trianglex.usercentral.session.*;
 import org.trianglex.usercentral.util.TicketUtils;
@@ -26,6 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.trianglex.usercentral.constant.UrlConstant.*;
 import static org.trianglex.usercentral.constant.UserConstant.*;
@@ -43,24 +47,13 @@ public class UserCentralController {
     private UserService userService;
 
     @Autowired
+    private UserPrivilegeService userPrivilegeService;
+
+    @Autowired
     private TicketProperties ticketProperties;
 
     @Autowired
     private AccessTokenProperties accessTokenProperties;
-
-    @GetMapping(value = "/sessionTest", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result sessionTest(HttpServletRequest request) {
-
-        Session session;
-        if (request.getSession(false) == null) {
-            request.getSession().setAttribute("name", "adf");
-        } else {
-            session = repository.findById(request.getSession(false).getId());
-            repository.save(session);
-        }
-
-        return new Result();
-    }
 
     @PostMapping(M_USER_POST_REGISTER)
     public Result<RegisterResponse> register(
@@ -107,7 +100,10 @@ public class UserCentralController {
         }
 
         User user = registerRequest.toPO(new User());
-        user.setUserId(user.getUserId().toLowerCase().replaceAll("-", ""));
+
+        user.setUserId(StringUtils.isEmpty(user.getUserId())
+                ? ToolUtils.getUUID() : user.getUserId().toLowerCase().replaceAll("-", ""));
+
         user.setSalt(PasswordUtils.salt256());
         user.setPassword(PasswordUtils.password(user.getPassword(), user.getSalt()));
 
@@ -209,7 +205,9 @@ public class UserCentralController {
             return result;
         }
 
-        User user = userService.getUserByUserId(ticket.getUserId(), "*");
+        User user = userService.getUserByUserId(ticket.getUserId(),
+                "user_id, username, nickname, gender, id_card, birth, " +
+                        "phone, email, wechat, weibo, third_id, third_type, avatar, status, create_time");
 
         if (user == null) {
             result.setStatus(TICKET_INCORRECT.getStatus());
@@ -217,9 +215,11 @@ public class UserCentralController {
             return result;
         }
 
+        List<UserPrivilege> userPrivilegeList = userPrivilegeService.getUserPrivileges(user.getUserId());
+
         HttpSession session = request.getSession(false);
         session = session == null ? request.getSession() : session;
-        refreshSession(user, session);
+        refreshSession(user, userPrivilegeList, session);
 
         ValidateTicketResponse response = new ValidateTicketResponse();
         response.setAccessToken(generateAccessToken(user.getUserId(), session.getId()));
@@ -229,14 +229,15 @@ public class UserCentralController {
                 ? TICKET_VALIDATE_SUCCESS.getStatus() : validateTicketRequest.getStatus());
         result.setMessage(StringUtils.isEmpty(validateTicketRequest.getMessage())
                 ? TICKET_VALIDATE_SUCCESS.getMessage() : validateTicketRequest.getMessage());
+
         return result;
     }
 
     @SuppressWarnings("unchecked")
     @PostMapping(M_USER_POST_GET_SESSION)
-    public Result<RemoteSession> getSession(@RequestParam("accessToken") String accessTokenString) {
+    public Result<UcSession> getSession(@RequestParam("accessToken") String accessTokenString) {
 
-        Result<RemoteSession> result = new Result<>();
+        Result<UcSession> result = new Result<>();
 
         AccessToken accessToken =
                 TicketUtils.parseAccessToken(accessTokenString, accessTokenProperties.getTokenEncryptKey());
@@ -255,14 +256,15 @@ public class UserCentralController {
             return result;
         }
 
-        UserCentralSession userCentralSession = session.getAttribute(SESSION_USER);
+        UcSession ucSession = session.getAttribute(SESSION_USER);
         repository.save(session);
 
-        RemoteSession remoteSession = new RemoteSession();
-        remoteSession.setUserCentralSession(userCentralSession);
-        remoteSession.setRemoteAccessToken(new RemoteAccessToken(accessTokenString, accessToken.getMaxAge()));
+        UcSession.SessionAccessToken sessionAccessToken = new UcSession.SessionAccessToken();
+        sessionAccessToken.setToken(accessTokenString);
+        sessionAccessToken.setMaxAge(accessTokenProperties.getTokenMaxAge().getSeconds());
+        ucSession.setSessionAccessToken(sessionAccessToken);
 
-        result.setData(remoteSession);
+        result.setData(ucSession);
         result.setStatus(GLOBAL_SESSION_REFRESH_SUCCESS.getStatus());
         result.setMessage(GLOBAL_SESSION_REFRESH_SUCCESS.getMessage());
         return result;
@@ -294,16 +296,22 @@ public class UserCentralController {
         }
     }
 
-    private UserCentralSession refreshSession(User user, HttpSession session) {
-        return refreshSession(user, null, session);
-    }
+    private UcSession refreshSession(User user, List<UserPrivilege> userPrivilegeList, HttpSession session) {
 
-    private UserCentralSession refreshSession(User user, Privilege privilege, HttpSession session) {
-        UserCentralSession userCentralSession = privilege == null
-                ? new UserCentralSession(user)
-                : new UserCentralSession(user, privilege);
-        session.setAttribute(SESSION_USER, userCentralSession);
-        return userCentralSession;
+        UcSession ucSession = new UcSession();
+
+        UcSession.SessionUser sessionUser = new UcSession.SessionUser();
+        BeanUtils.copyProperties(user, sessionUser);
+        ucSession.setSessionUser(sessionUser);
+
+        if (!CollectionUtils.isEmpty(userPrivilegeList)) {
+            List<UcSession.SessionUserPrivilege> sessionUserPrivilegeList = new ArrayList<>();
+            BeanUtils.copyProperties(userPrivilegeList, sessionUserPrivilegeList);
+            ucSession.setSessionUserPrivilegeList(sessionUserPrivilegeList);
+        }
+
+        session.setAttribute(SESSION_USER, ucSession);
+        return ucSession;
     }
 
     private String generateTicket(String userId) {

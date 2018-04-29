@@ -19,6 +19,7 @@
     <modules>
         <module>api</module>
         <module>core</module>
+        <module>common</module>
     </modules>
 
     <dependencyManagement>
@@ -26,6 +27,11 @@
             <dependency>
                 <groupId>org.trianglex</groupId>
                 <artifactId>trianglex-common</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.trianglex.usercentral</groupId>
+                <artifactId>user-central-common</artifactId>
                 <version>1.0.0</version>
             </dependency>
         </dependencies>

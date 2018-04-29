@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.trianglex.usercentral.dao.UserPrivilegeDAO">
+
+    <select id="getUserPrivileges" resultType="org.trianglex.usercentral.domain.UserPrivilege">
+        select
+            up.privilege_id,
+            p.status
+        from t_user_privileges up
+            join t_privileges p on p.privilege_id = up.privilege_id
+        where up.user_id = #{userId};
+    </select>
+
+</mapper>
