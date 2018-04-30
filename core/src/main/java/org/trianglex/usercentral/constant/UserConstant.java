@@ -11,8 +11,7 @@ public interface UserConstant {
     String PASSWORD_NOT_BLANK = "1001#密码不能为空";
     String NICKNAME_NOT_BLANK = "1002#昵称不能为空";
     String GENDER_NOT_NULL = "1003#性别不能为空";
-    String USERID_NOT_UUID = "1004#用户ID不是UUID/GUID";
-    String TICKET_NOT_BLANK = "1005#票据不能为空";
+    String TICKET_NOT_BLANK = "1004#票据不能为空";
 
     ConstPair USER_REGISTER_SUCCESS = ConstPair.make(SUCCESS, "账号注册成功");
     ConstPair USER_REGISTER_FAIL = ConstPair.make(100, "账号注册失败");

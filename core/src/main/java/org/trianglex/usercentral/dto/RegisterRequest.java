@@ -1,7 +1,6 @@
 package org.trianglex.usercentral.dto;
 
 import org.trianglex.common.dto.DtoAttributes;
-import org.trianglex.common.validation.IsUUID;
 import org.trianglex.usercentral.domain.User;
 import org.trianglex.usercentral.enums.ThirdType;
 
@@ -14,7 +13,6 @@ public class RegisterRequest implements DtoAttributes<User> {
 
     private static final long serialVersionUID = 1498144726563297831L;
 
-    @IsUUID(message = USERID_NOT_UUID)
     private String userId;
 
     @NotBlank(message = USERNAME_NOT_BLANK)

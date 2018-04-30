@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.trianglex.common.util.RegexUtils.UUID;
 import static org.trianglex.usercentral.constant.UrlConstant.*;
 import static org.trianglex.usercentral.constant.UserConstant.*;
 
@@ -101,7 +102,7 @@ public class UserCentralController {
 
         User user = registerRequest.toPO(new User());
 
-        user.setUserId(StringUtils.isEmpty(user.getUserId())
+        user.setUserId((StringUtils.isEmpty(user.getUserId()) || !RegexUtils.isMatch(user.getUserId(), UUID))
                 ? ToolUtils.getUUID() : user.getUserId().toLowerCase().replaceAll("-", ""));
 
         user.setSalt(PasswordUtils.salt256());
