@@ -12,6 +12,7 @@ import java.io.UnsupportedEncodingException;
 
 public abstract class TicketUtils {
 
+    private static final String CHARSET = "UTF-8";
     private static final Logger logger = LoggerFactory.getLogger(TicketUtils.class);
 
     private TicketUtils() {
@@ -32,7 +33,7 @@ public abstract class TicketUtils {
         try {
             byte[] bytes = DESUtils.des3DecodeECB(
                     DESUtils.decodeFromUrlSafeString(accessTokenString), secretKey);
-            return JsonUtils.parse(new String(bytes, "UTF-8"), AccessToken.class);
+            return JsonUtils.parse(new String(bytes, CHARSET), AccessToken.class);
         } catch (UnsupportedEncodingException e) {
             logger.error(e.getMessage(), e);
         }
@@ -52,7 +53,7 @@ public abstract class TicketUtils {
     public static Ticket parseTicket(String ticketString, String secretKey) {
         try {
             byte[] bytes = AES256Utils.decrypt(AES256Utils.decodeFromUrlSafeString(ticketString), secretKey);
-            return JsonUtils.parse(new String(bytes, "UTF-8"), Ticket.class);
+            return JsonUtils.parse(new String(bytes, CHARSET), Ticket.class);
         } catch (UnsupportedEncodingException e) {
             logger.error(e.getMessage(), e);
         }
