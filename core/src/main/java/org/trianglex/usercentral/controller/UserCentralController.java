@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.MediaType;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.util.CollectionUtils;
@@ -56,7 +57,7 @@ public class UserCentralController {
     @Autowired
     private AccessTokenProperties accessTokenProperties;
 
-    @PostMapping(M_USER_POST_REGISTER)
+    @GetMapping(value = M_USER_POST_REGISTER, produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<RegisterResponse> register(
             @Valid @ModelAttribute("registerRequest") RegisterRequest registerRequest, HttpServletResponse response) {
 
@@ -143,7 +144,7 @@ public class UserCentralController {
         return result;
     }
 
-    @PostMapping(M_USER_POST_LOGIN)
+    @GetMapping(value = M_USER_POST_LOGIN, produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<LoginResponse> login(
             @Valid @ModelAttribute("loginRequest") LoginRequest loginRequest, HttpServletResponse response) {
 
@@ -184,7 +185,7 @@ public class UserCentralController {
         return result;
     }
 
-    @GetMapping(M_USER_GET_VALIDATE_TICKET)
+    @GetMapping(value = M_USER_GET_VALIDATE_TICKET, produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<ValidateTicketResponse> validateTicket(
             HttpServletRequest request,
             @ModelAttribute("validateTicketRequest") ValidateTicketRequest validateTicketRequest) {
