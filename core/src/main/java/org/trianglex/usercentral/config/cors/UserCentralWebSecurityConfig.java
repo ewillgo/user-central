@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.trianglex.usercentral.config.cors.CorsProperties;
 
 @Configuration
 @Import(CorsProperties.class)
@@ -38,6 +37,7 @@ public class UserCentralWebSecurityConfig extends WebSecurityConfigurerAdapter {
         configuration.setAllowedMethods(corsProperties.getAllowedMethods());
         configuration.setAllowCredentials(corsProperties.isAllowCredentials());
         configuration.setAllowedHeaders(corsProperties.getAllowedHeaders());
+        configuration.setExposedHeaders(corsProperties.getExposedHeaders());
         configuration.setMaxAge(corsProperties.getMaxAge());
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

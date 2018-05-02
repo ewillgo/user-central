@@ -17,6 +17,7 @@ public class CorsProperties {
     private List<String> allowedMethods;
     @NotNull
     private List<String> allowedHeaders;
+    private List<String> exposedHeaders;
     private boolean allowCredentials;
     private long maxAge;
     @NotBlank
@@ -44,6 +45,14 @@ public class CorsProperties {
 
     public void setAllowedHeaders(List<String> allowedHeaders) {
         this.allowedHeaders = allowedHeaders;
+    }
+
+    public List<String> getExposedHeaders() {
+        return exposedHeaders;
+    }
+
+    public void setExposedHeaders(List<String> exposedHeaders) {
+        this.exposedHeaders = exposedHeaders;
     }
 
     public boolean isAllowCredentials() {
