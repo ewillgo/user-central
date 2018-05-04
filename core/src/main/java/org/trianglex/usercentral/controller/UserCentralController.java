@@ -12,6 +12,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.trianglex.common.dto.Result;
+import org.trianglex.common.exception.BusinessException;
 import org.trianglex.common.support.ConstPair;
 import org.trianglex.common.util.PasswordUtils;
 import org.trianglex.common.util.RegexUtils;
@@ -64,28 +65,20 @@ public class UserCentralController {
         Result<RegisterResponse> result = new Result<>();
 
         if (userService.isUsernameExists(registerRequest.getUsername())) {
-            result.setStatus(USER_NAME_EXISTS.getStatus());
-            result.setMessage(USER_NAME_EXISTS.getMessage());
-            return result;
+            throw new BusinessException(USER_NAME_EXISTS.getStatus(), USER_NAME_EXISTS.getMessage());
         }
 
         if (userService.isNicknameExists(registerRequest.getNickname())) {
-            result.setStatus(USER_NICKNAME_EXISTS.getStatus());
-            result.setMessage(USER_NICKNAME_EXISTS.getMessage());
-            return result;
+            throw new BusinessException(USER_NICKNAME_EXISTS.getStatus(), USER_NICKNAME_EXISTS.getMessage());
         }
 
         if (!StringUtils.isEmpty(registerRequest.getPhone()) && userService.isPhoneExists(registerRequest.getPhone())) {
-            result.setStatus(USER_PHONE_EXISTS.getStatus());
-            result.setMessage(USER_PHONE_EXISTS.getMessage());
-            return result;
+            throw new BusinessException(USER_PHONE_EXISTS.getStatus(), USER_PHONE_EXISTS.getMessage());
         }
 
         if (!StringUtils.isEmpty(registerRequest.getEmail())
                 && !RegexUtils.isMatch(registerRequest.getEmail(), RegexUtils.EMAIL)) {
-            result.setStatus(USER_INCORRECT_EMAIL.getStatus());
-            result.setMessage(USER_INCORRECT_EMAIL.getMessage());
-            return result;
+            throw new BusinessException(USER_INCORRECT_EMAIL.getStatus(), USER_INCORRECT_EMAIL.getMessage());
         } else if (StringUtils.isEmpty(registerRequest.getEmail())
                 && RegexUtils.isMatch(registerRequest.getUsername(), RegexUtils.EMAIL)) {
             registerRequest.setEmail(registerRequest.getUsername());
@@ -93,9 +86,7 @@ public class UserCentralController {
 
         if (!StringUtils.isEmpty(registerRequest.getIdCard())
                 && !RegexUtils.isMatch(registerRequest.getIdCard(), RegexUtils.ID_CARD_18)) {
-            result.setStatus(USER_INCORRECT_IDCARD.getStatus());
-            result.setMessage(USER_INCORRECT_IDCARD.getMessage());
-            return result;
+            throw new BusinessException(USER_INCORRECT_IDCARD.getStatus(), USER_INCORRECT_IDCARD.getMessage());
         } else if (!StringUtils.isEmpty(registerRequest.getIdCard())) {
             registerRequest.setGender(ToolUtils.extractGender(registerRequest.getIdCard()));
             registerRequest.setBirth(ToolUtils.extractBirth(registerRequest.getIdCard()));
@@ -114,9 +105,7 @@ public class UserCentralController {
 
         registerResponse.setTicket(generateTicket(user.getUserId()));
         if (StringUtils.isEmpty(registerResponse.getTicket())) {
-            result.setStatus(TICKET_GENERATE_ERROR.getStatus());
-            result.setMessage(TICKET_GENERATE_ERROR.getMessage());
-            return result;
+            throw new BusinessException(TICKET_GENERATE_ERROR.getStatus(), TICKET_GENERATE_ERROR.getMessage());
         }
 
         boolean ret;
@@ -127,9 +116,7 @@ public class UserCentralController {
             if (!(e instanceof DuplicateKeyException)) {
                 logger.error(e.getMessage(), e);
             }
-            result.setStatus(USER_REPEAT.getStatus());
-            result.setMessage(USER_REPEAT.getMessage());
-            return result;
+            throw new BusinessException(USER_REPEAT.getStatus(), USER_REPEAT.getMessage());
         }
 
         ConstPair constPair = ret ? USER_REGISTER_SUCCESS : USER_REGISTER_FAIL;
@@ -152,25 +139,19 @@ public class UserCentralController {
 
         User user = userService.getUserByUsername(loginRequest.getUsername(), "salt");
         if (user == null) {
-            result.setStatus(USER_NOT_EXISTS.getStatus());
-            result.setMessage(USER_NOT_EXISTS.getMessage());
-            return result;
+            throw new BusinessException(USER_NOT_EXISTS.getStatus(), USER_NOT_EXISTS.getMessage());
         }
 
         user = userService.getUserByUsernameAndPassword(loginRequest.getUsername(),
                 PasswordUtils.password(loginRequest.getPassword(), user.getSalt()), "user_id");
 
         if (user == null) {
-            result.setStatus(USER_NOT_EXISTS.getStatus());
-            result.setMessage(USER_NOT_EXISTS.getMessage());
-            return result;
+            throw new BusinessException(USER_NOT_EXISTS.getStatus(), USER_NOT_EXISTS.getMessage());
         }
 
         String ticket = generateTicket(user.getUserId());
         if (StringUtils.isEmpty(ticket)) {
-            result.setStatus(TICKET_GENERATE_ERROR.getStatus());
-            result.setMessage(TICKET_GENERATE_ERROR.getMessage());
-            return result;
+            throw new BusinessException(TICKET_GENERATE_ERROR.getStatus(), TICKET_GENERATE_ERROR.getMessage());
         }
 
         redirect(ticket, USER_LOGIN_SUCCESS.getStatus(), USER_LOGIN_SUCCESS.getMessage(), response);
@@ -195,16 +176,12 @@ public class UserCentralController {
                 validateTicketRequest.getTicket(), ticketProperties.getTicketEncryptKey());
 
         if (ticket == null) {
-            result.setStatus(TICKET_INCORRECT.getStatus());
-            result.setMessage(TICKET_INCORRECT.getMessage());
-            return result;
+            throw new BusinessException(TICKET_INCORRECT.getStatus(), TICKET_INCORRECT.getMessage());
         }
 
         long currentTimestamp = System.currentTimeMillis();
         if (ticket.getTimestamp() < currentTimestamp) {
-            result.setStatus(TICKET_TIMEOUT.getStatus());
-            result.setMessage(TICKET_TIMEOUT.getMessage());
-            return result;
+            throw new BusinessException(TICKET_TIMEOUT.getStatus(), TICKET_TIMEOUT.getMessage());
         }
 
         User user = userService.getUserByUserId(ticket.getUserId(),
@@ -212,9 +189,7 @@ public class UserCentralController {
                         "phone, email, wechat, weibo, third_id, third_type, avatar, status, create_time");
 
         if (user == null) {
-            result.setStatus(TICKET_INCORRECT.getStatus());
-            result.setMessage(TICKET_INCORRECT.getMessage());
-            return result;
+            throw new BusinessException(TICKET_INCORRECT.getStatus(), TICKET_INCORRECT.getMessage());
         }
 
         List<UserPrivilege> userPrivilegeList = userPrivilegeService.getUserPrivileges(user.getUserId());
@@ -245,17 +220,13 @@ public class UserCentralController {
                 TicketUtils.parseAccessToken(accessTokenString, accessTokenProperties.getTokenEncryptKey());
 
         if (accessToken == null) {
-            result.setStatus(ACCESS_TOKEN_INVALID.getStatus());
-            result.setMessage(ACCESS_TOKEN_INVALID.getMessage());
-            return result;
+            throw new BusinessException(ACCESS_TOKEN_INVALID.getStatus(), ACCESS_TOKEN_INVALID.getMessage());
         }
 
         Session session = repository.findById(accessToken.getSessionId());
 
         if (session == null) {
-            result.setStatus(GLOBAL_SESSION_TIMEOUT.getStatus());
-            result.setMessage(GLOBAL_SESSION_TIMEOUT.getMessage());
-            return result;
+            throw new BusinessException(GLOBAL_SESSION_TIMEOUT.getStatus(), GLOBAL_SESSION_TIMEOUT.getMessage());
         }
 
         UcSession ucSession = session.getAttribute(SESSION_USER);
