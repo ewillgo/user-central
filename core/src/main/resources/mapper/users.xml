@@ -16,6 +16,9 @@
             phone,
             wechat,
             weibo,
+            province,
+            city,
+            address,
             third_id,
             third_type
         ) values (
@@ -31,6 +34,9 @@
             #{phone},
             #{wechat},
             #{weibo},
+            #{province},
+            #{city},
+            #{address},
             #{thirdId},
             #{thirdType}
         )

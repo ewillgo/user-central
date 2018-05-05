@@ -9,11 +9,16 @@ package org.trianglex.usercentral.constant;
  */
 public interface UrlConstant {
 
-    String C_USER = "/api/user";
-    String M_USER_POST_REGISTER = "/register";
-    String M_USER_POST_LOGIN = "/login";
-    String M_USER_GET_LOGOUT = "/logout";
-    String M_USER_GET_VALIDATE_TICKET = "/validateTicket";
-    String M_USER_POST_GET_SESSION = "/getSession";
+    String C_API_USER = "/api/user";
+    String M_API_USER_POST_REGISTER = "/register";
+    String M_API_USER_POST_LOGIN = "/login";
+    String M_API_USER_GET_LOGOUT = "/logout";
+    String M_API_USER_GET_VALIDATE_TICKET = "/validateTicket";
+    String M_API_USER_POST_GET_SESSION = "/getSession";
+
+    String C_USER = "/user";
+    String C_USER_POST_FETCH_USER_BY_PAGINAGE = "/getUserByPaginate";
+    String C_USER_POST_FETCH_USER_BY_USER_ID = "/getUserByUserId";
+    String C_USER_POST_UPDATE_USER_BY_USER_ID = "/updateUserByUserId";
 
 }

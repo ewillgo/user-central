@@ -1,9 +1,13 @@
 package org.trianglex.usercentral.dto;
 
 import org.trianglex.common.dto.DtoAttributes;
+import org.trianglex.common.validation.IsIdCard;
+import org.trianglex.common.validation.IsNickname;
+import org.trianglex.common.validation.IsPhone;
 import org.trianglex.usercentral.domain.User;
 import org.trianglex.usercentral.enums.ThirdType;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -16,23 +20,35 @@ public class RegisterRequest implements DtoAttributes<User> {
     private String userId;
 
     @NotBlank(message = USERNAME_NOT_BLANK)
+    @Email(message = EMAIL_INCORRECT)
     private String username;
 
     @NotBlank(message = PASSWORD_NOT_BLANK)
     private String password;
 
     @NotBlank(message = NICKNAME_NOT_BLANK)
+    @IsNickname(message = NICKNAME_INCORRECT)
     private String nickname;
 
     @NotNull(message = GENDER_NOT_NULL)
     private Integer gender;
 
+    @IsIdCard(message = ID_CARD_INCORRECT)
     private String idCard;
+
     private String birth;
+
+    @IsPhone(message = PHONE_INCORRECT)
     private String phone;
+
+    @Email(message = EMAIL_INCORRECT)
     private String email;
+
     private String wechat;
     private String weibo;
+    private String province;
+    private String city;
+    private String address;
     private String thirdId;
     private ThirdType thirdType;
 
@@ -122,6 +138,30 @@ public class RegisterRequest implements DtoAttributes<User> {
 
     public void setWeibo(String weibo) {
         this.weibo = weibo;
+    }
+
+    public String getProvince() {
+        return province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getThirdId() {

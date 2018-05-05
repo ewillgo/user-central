@@ -30,7 +30,7 @@ public class UserCentralControllerTest extends AbstractMockController<UserCentra
         userDTO.setNickname("窗外的麻雀，在电线杆上多嘴。");
         userDTO.setGender(0);
 
-        MvcResult mvcResult = mockPost(C_USER + M_USER_POST_REGISTER, JavaBeanUtils.beanToMap(userDTO));
+        MvcResult mvcResult = mockPost(C_API_USER + M_API_USER_POST_REGISTER, JavaBeanUtils.beanToMap(userDTO));
         logger.info(mvcResult.getResponse().getContentAsString());
     }
 
@@ -40,7 +40,7 @@ public class UserCentralControllerTest extends AbstractMockController<UserCentra
         loginDTO.setUsername("test@gmail.com");
         loginDTO.setPassword(DigestUtils.md5Hex("123456"));
 
-        MvcResult mvcResult = mockPost(C_USER + M_USER_POST_LOGIN, JavaBeanUtils.beanToMap(loginDTO));
+        MvcResult mvcResult = mockPost(C_API_USER + M_API_USER_POST_LOGIN, JavaBeanUtils.beanToMap(loginDTO));
         logger.info(mvcResult.getResponse().getContentAsString());
     }
 }

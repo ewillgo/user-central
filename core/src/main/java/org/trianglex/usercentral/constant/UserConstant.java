@@ -13,6 +13,19 @@ public interface UserConstant {
     String GENDER_NOT_NULL = "1003#性别不能为空";
     String TICKET_NOT_BLANK = "1004#票据不能为空";
 
+    String PAGE_NO_NOT_NULL = "1005#当前页码不能为空";
+    String PAGE_SIZE_NOT_NULL = "1006#每页大小不能为空";
+    String POSITIVE = "1007#数字必须大于等于1";
+    String FIELDS_NOT_BLANK = "1008#请填写需要查询的字段";
+    String USER_ID_NOT_BLANK = "1009#用户ID不能为空";
+    String USER_ID_IS_UUID = "1010#用户ID必须是UUID";
+    String UPDATE_DATA_NOT_NULL = "1011#请填写需要更新的字段";
+    String EMAIL_INCORRECT = "1012#电子邮箱格式不正确";
+    String ID_CARD_INCORRECT = "1013#身份证号格式不正确";
+    String PHONE_INCORRECT = "1013#手机号码格式不正确";
+    String NICKNAME_INCORRECT = "1014#昵称由中文、字母和数字组成";
+
+
     ConstPair USER_REGISTER_SUCCESS = ConstPair.make(SUCCESS, "账号注册成功");
     ConstPair USER_REGISTER_FAIL = ConstPair.make(100, "账号注册失败");
     ConstPair USER_LOGIN_SUCCESS = ConstPair.make(SUCCESS, "账号登录成功");

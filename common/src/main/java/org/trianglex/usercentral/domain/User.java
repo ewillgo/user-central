@@ -19,6 +19,9 @@ public class User {
     private String email;
     private String wechat;
     private String weibo;
+    private String province;
+    private String city;
+    private String address;
     private String thirdId;
     private ThirdType thirdType;
     private String avatar;
@@ -128,6 +131,30 @@ public class User {
 
     public void setWeibo(String weibo) {
         this.weibo = weibo;
+    }
+
+    public String getProvince() {
+        return province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getThirdId() {

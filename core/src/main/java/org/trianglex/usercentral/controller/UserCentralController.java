@@ -38,7 +38,7 @@ import static org.trianglex.usercentral.constant.UrlConstant.*;
 import static org.trianglex.usercentral.constant.UserConstant.*;
 
 @RestController
-@RequestMapping(C_USER)
+@RequestMapping(C_API_USER)
 public class UserCentralController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserCentralController.class);
@@ -58,7 +58,7 @@ public class UserCentralController {
     @Autowired
     private AccessTokenProperties accessTokenProperties;
 
-    @GetMapping(value = M_USER_POST_REGISTER, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = M_API_USER_POST_REGISTER, produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<RegisterResponse> register(
             @Valid @ModelAttribute("registerRequest") RegisterRequest registerRequest, HttpServletResponse response) {
 
@@ -131,7 +131,7 @@ public class UserCentralController {
         return result;
     }
 
-    @GetMapping(value = M_USER_POST_LOGIN, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = M_API_USER_POST_LOGIN, produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<LoginResponse> login(
             @Valid @ModelAttribute("loginRequest") LoginRequest loginRequest, HttpServletResponse response) {
 
@@ -166,7 +166,7 @@ public class UserCentralController {
         return result;
     }
 
-    @GetMapping(value = M_USER_GET_VALIDATE_TICKET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = M_API_USER_GET_VALIDATE_TICKET, produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<ValidateTicketResponse> validateTicket(
             HttpServletRequest request,
             @ModelAttribute("validateTicketRequest") ValidateTicketRequest validateTicketRequest) {
@@ -211,7 +211,7 @@ public class UserCentralController {
     }
 
     @SuppressWarnings("unchecked")
-    @PostMapping(M_USER_POST_GET_SESSION)
+    @PostMapping(M_API_USER_POST_GET_SESSION)
     public Result<UcSession> getSession(@RequestParam("accessToken") String accessTokenString) {
 
         Result<UcSession> result = new Result<>();
@@ -243,7 +243,7 @@ public class UserCentralController {
         return result;
     }
 
-    @PostMapping(M_USER_GET_LOGOUT)
+    @PostMapping(M_API_USER_GET_LOGOUT)
     public Result logout(HttpServletRequest request) {
 
         Result result = new Result();
@@ -263,7 +263,7 @@ public class UserCentralController {
         try {
             ;
             response.sendRedirect(String.format("%s%s?ticket=%s&status=%d&message=%s",
-                    C_USER, M_USER_GET_VALIDATE_TICKET, ticket, status, ToolUtils.encodeUrl(message)));
+                    C_API_USER, M_API_USER_GET_VALIDATE_TICKET, ticket, status, ToolUtils.encodeUrl(message)));
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
