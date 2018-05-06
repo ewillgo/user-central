@@ -60,7 +60,7 @@ public class UserCentralController {
     private AccessTokenProperties accessTokenProperties;
 
     @ApiAuthorization(message = SIGN_ERROR)
-    @GetMapping(value = M_API_USER_POST_REGISTER, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = M_API_USER_GET_REGISTER, produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<RegisterResponse> register(
             @Valid @ModelAttribute("registerRequest") RegisterRequest registerRequest, HttpServletResponse response) {
 
@@ -134,7 +134,7 @@ public class UserCentralController {
     }
 
     @ApiAuthorization(message = SIGN_ERROR)
-    @GetMapping(value = M_API_USER_POST_LOGIN, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = M_API_USER_GET_LOGIN, produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<LoginResponse> login(
             @Valid @ModelAttribute("loginRequest") LoginRequest loginRequest, HttpServletResponse response) {
 
