@@ -7,11 +7,11 @@ import org.springframework.context.annotation.Import;
 import org.trianglex.common.config.WebConfig;
 import org.trianglex.common.security.XssRequestFilter;
 import org.trianglex.common.security.auth.AuthorizationAspect;
-import org.trianglex.usercentral.config.cors.UserCentralWebSecurityConfig;
+import org.trianglex.common.security.cors.WebSecurityCorsConfig;
 import org.trianglex.usercentral.security.AppCacheLoader;
 
 @Configuration
-@Import({WebConfig.class, UserCentralWebSecurityConfig.class, XssRequestFilter.class})
+@Import({WebConfig.class, WebSecurityCorsConfig.class, XssRequestFilter.class})
 public class UserCentralConfig {
 
     @Bean(name = "appCacheLoader")
@@ -21,6 +21,6 @@ public class UserCentralConfig {
 
     @Bean
     public AuthorizationAspect authorizationAspect() {
-        return new AuthorizationAspect();
+        return new AuthorizationAspect(cacheLoader());
     }
 }
