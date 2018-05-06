@@ -86,3 +86,18 @@ create table t_user_role_relations (
 
 create index idx_user_role_relations_user_id on t_user_role_relations(user_id);
 create index idx_user_role_relations_role_id on t_user_role_relations(role_id);
+
+-- 子系统账号表
+create table t_applications (
+  id int not null auto_increment primary key comment '主键ID',
+  oper_id varchar(64) not null comment '操作人ID',
+  app_name varchar(255) not null comment '应用名称',
+  app_key varchar(255) not null comment '账号',
+  app_secret varchar(255) not null comment '密码',
+  remark varchar(1000) null comment '备注',
+  create_time datetime not null default current_timestamp comment '创建时间',
+  update_time datetime null on update current_timestamp comment '更新时间'
+) engine Innodb charset utf8;
+
+create index idx_applications_oper_id on t_applications(oper_id);
+
