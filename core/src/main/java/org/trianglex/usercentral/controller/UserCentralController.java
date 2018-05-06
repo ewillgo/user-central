@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.trianglex.common.dto.Result;
 import org.trianglex.common.exception.BusinessException;
+import org.trianglex.common.security.auth.ApiAuthorization;
 import org.trianglex.common.support.ConstPair;
 import org.trianglex.common.util.PasswordUtils;
 import org.trianglex.common.util.RegexUtils;
@@ -131,6 +132,7 @@ public class UserCentralController {
         return result;
     }
 
+    @ApiAuthorization(message = SIGN_ERROR)
     @GetMapping(value = M_API_USER_POST_LOGIN, produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<LoginResponse> login(
             @Valid @ModelAttribute("loginRequest") LoginRequest loginRequest, HttpServletResponse response) {

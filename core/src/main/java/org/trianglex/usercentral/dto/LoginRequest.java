@@ -1,10 +1,12 @@
 package org.trianglex.usercentral.dto;
 
+import org.trianglex.common.security.auth.ApiAttributes;
+
 import javax.validation.constraints.NotBlank;
 
 import static org.trianglex.usercentral.constant.UserConstant.*;
 
-public class LoginRequest {
+public class LoginRequest extends ApiAttributes {
 
     @NotBlank(message = USERNAME_NOT_BLANK)
     private String username;

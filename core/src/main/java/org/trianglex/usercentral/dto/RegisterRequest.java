@@ -1,6 +1,7 @@
 package org.trianglex.usercentral.dto;
 
 import org.trianglex.common.dto.DtoAttributes;
+import org.trianglex.common.security.auth.ApiAttributes;
 import org.trianglex.common.validation.IsIdCard;
 import org.trianglex.common.validation.IsNickname;
 import org.trianglex.common.validation.IsPhone;
@@ -13,7 +14,7 @@ import javax.validation.constraints.NotNull;
 
 import static org.trianglex.usercentral.constant.UserConstant.*;
 
-public class RegisterRequest implements DtoAttributes<User> {
+public class RegisterRequest extends ApiAttributes implements DtoAttributes<User> {
 
     private static final long serialVersionUID = 1498144726563297831L;
 

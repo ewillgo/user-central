@@ -100,4 +100,5 @@ create table t_applications (
 ) engine Innodb charset utf8;
 
 create index idx_applications_oper_id on t_applications(oper_id);
+create index idx_applications_app_key on t_applications(app_key);
 

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.trianglex.usercentral.dao.ApplicationDAO">
+
+    <select id="getApplicationByAppKey" resultType="org.trianglex.usercentral.domain.Application">
+        select ${fields}
+        from t_applications
+        where app_key = #{appKey};
+    </select>
+
+</mapper>
