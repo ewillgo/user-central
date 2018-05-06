@@ -59,6 +59,7 @@ public class UserCentralController {
     @Autowired
     private AccessTokenProperties accessTokenProperties;
 
+    @ApiAuthorization(message = SIGN_ERROR)
     @GetMapping(value = M_API_USER_POST_REGISTER, produces = MediaType.APPLICATION_JSON_VALUE)
     public Result<RegisterResponse> register(
             @Valid @ModelAttribute("registerRequest") RegisterRequest registerRequest, HttpServletResponse response) {
