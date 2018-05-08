@@ -12,9 +12,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.trianglex.common.dto.Result;
+import org.trianglex.common.exception.BusinessCode;
 import org.trianglex.common.exception.BusinessException;
 import org.trianglex.common.security.auth.ApiAuthorization;
-import org.trianglex.common.support.ConstPair;
 import org.trianglex.common.util.PasswordUtils;
 import org.trianglex.common.util.RegexUtils;
 import org.trianglex.common.util.ToolUtils;
@@ -36,7 +36,9 @@ import java.util.List;
 
 import static org.trianglex.common.util.RegexUtils.UUID;
 import static org.trianglex.usercentral.constant.UrlConstant.*;
-import static org.trianglex.usercentral.constant.UserConstant.*;
+import static org.trianglex.usercentral.constant.UserBusinessCode.*;
+import static org.trianglex.usercentral.constant.UserConstant.SESSION_USER;
+import static org.trianglex.usercentral.constant.UserConstant.SIGN_ERROR;
 
 @RestController
 @RequestMapping(C_API_USER)
@@ -64,23 +66,21 @@ public class UserCentralController {
     public Result<RegisterResponse> register(
             @Valid @ModelAttribute("registerRequest") RegisterRequest registerRequest, HttpServletResponse response) {
 
-        Result<RegisterResponse> result = new Result<>();
-
         if (userService.isUsernameExists(registerRequest.getUsername())) {
-            throw new BusinessException(USER_NAME_EXISTS.getStatus(), USER_NAME_EXISTS.getMessage());
+            throw new BusinessException(USER_NAME_EXISTS);
         }
 
         if (userService.isNicknameExists(registerRequest.getNickname())) {
-            throw new BusinessException(USER_NICKNAME_EXISTS.getStatus(), USER_NICKNAME_EXISTS.getMessage());
+            throw new BusinessException(USER_NICKNAME_EXISTS);
         }
 
         if (!StringUtils.isEmpty(registerRequest.getPhone()) && userService.isPhoneExists(registerRequest.getPhone())) {
-            throw new BusinessException(USER_PHONE_EXISTS.getStatus(), USER_PHONE_EXISTS.getMessage());
+            throw new BusinessException(USER_PHONE_EXISTS);
         }
 
         if (!StringUtils.isEmpty(registerRequest.getEmail())
                 && !RegexUtils.isMatch(registerRequest.getEmail(), RegexUtils.EMAIL)) {
-            throw new BusinessException(USER_INCORRECT_EMAIL.getStatus(), USER_INCORRECT_EMAIL.getMessage());
+            throw new BusinessException(USER_INCORRECT_EMAIL);
         } else if (StringUtils.isEmpty(registerRequest.getEmail())
                 && RegexUtils.isMatch(registerRequest.getUsername(), RegexUtils.EMAIL)) {
             registerRequest.setEmail(registerRequest.getUsername());
@@ -88,7 +88,7 @@ public class UserCentralController {
 
         if (!StringUtils.isEmpty(registerRequest.getIdCard())
                 && !RegexUtils.isMatch(registerRequest.getIdCard(), RegexUtils.ID_CARD_18)) {
-            throw new BusinessException(USER_INCORRECT_IDCARD.getStatus(), USER_INCORRECT_IDCARD.getMessage());
+            throw new BusinessException(USER_INCORRECT_IDCARD);
         } else if (!StringUtils.isEmpty(registerRequest.getIdCard())) {
             registerRequest.setGender(ToolUtils.extractGender(registerRequest.getIdCard()));
             registerRequest.setBirth(ToolUtils.extractBirth(registerRequest.getIdCard()));
@@ -107,7 +107,7 @@ public class UserCentralController {
 
         registerResponse.setTicket(generateTicket(user.getUserId()));
         if (StringUtils.isEmpty(registerResponse.getTicket())) {
-            throw new BusinessException(TICKET_GENERATE_ERROR.getStatus(), TICKET_GENERATE_ERROR.getMessage());
+            throw new BusinessException(TICKET_GENERATE_ERROR);
         }
 
         boolean ret;
@@ -118,19 +118,16 @@ public class UserCentralController {
             if (!(e instanceof DuplicateKeyException)) {
                 logger.error(e.getMessage(), e);
             }
-            throw new BusinessException(USER_REPEAT.getStatus(), USER_REPEAT.getMessage());
+            throw new BusinessException(USER_REPEAT);
         }
 
-        ConstPair constPair = ret ? USER_REGISTER_SUCCESS : USER_REGISTER_FAIL;
+        BusinessCode businessCode = ret ? USER_REGISTER_SUCCESS : USER_REGISTER_FAIL;
 
         if (ret) {
-            redirect(registerResponse.getTicket(), constPair.getStatus(), constPair.getMessage(), response);
+            redirect(registerResponse.getTicket(), businessCode.getStatus(), businessCode.getMessage(), response);
         }
 
-        result.setData(registerResponse);
-        result.setStatus(constPair.getStatus());
-        result.setMessage(constPair.getMessage());
-        return result;
+        return Result.of(businessCode, registerResponse);
     }
 
     @ApiAuthorization(message = SIGN_ERROR)
@@ -138,23 +135,21 @@ public class UserCentralController {
     public Result<LoginResponse> login(
             @Valid @ModelAttribute("loginRequest") LoginRequest loginRequest, HttpServletResponse response) {
 
-        Result<LoginResponse> result = new Result<>();
-
         User user = userService.getUserByUsername(loginRequest.getUsername(), "salt");
         if (user == null) {
-            throw new BusinessException(USER_NOT_EXISTS.getStatus(), USER_NOT_EXISTS.getMessage());
+            throw new BusinessException(USER_NOT_EXISTS);
         }
 
         user = userService.getUserByUsernameAndPassword(loginRequest.getUsername(),
                 PasswordUtils.password(loginRequest.getPassword(), user.getSalt()), "user_id");
 
         if (user == null) {
-            throw new BusinessException(USER_NOT_EXISTS.getStatus(), USER_NOT_EXISTS.getMessage());
+            throw new BusinessException(USER_NOT_EXISTS);
         }
 
         String ticket = generateTicket(user.getUserId());
         if (StringUtils.isEmpty(ticket)) {
-            throw new BusinessException(TICKET_GENERATE_ERROR.getStatus(), TICKET_GENERATE_ERROR.getMessage());
+            throw new BusinessException(TICKET_GENERATE_ERROR);
         }
 
         redirect(ticket, USER_LOGIN_SUCCESS.getStatus(), USER_LOGIN_SUCCESS.getMessage(), response);
@@ -163,10 +158,7 @@ public class UserCentralController {
         loginResponse.setUserId(user.getId());
         loginResponse.setTicket(ticket);
 
-        result.setData(loginResponse);
-        result.setStatus(USER_LOGIN_SUCCESS.getStatus());
-        result.setMessage(USER_LOGIN_SUCCESS.getMessage());
-        return result;
+        return Result.of(USER_LOGIN_SUCCESS, loginResponse);
     }
 
     @GetMapping(value = M_API_USER_GET_VALIDATE_TICKET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -179,12 +171,12 @@ public class UserCentralController {
                 validateTicketRequest.getTicket(), ticketProperties.getTicketEncryptKey());
 
         if (ticket == null) {
-            throw new BusinessException(TICKET_INCORRECT.getStatus(), TICKET_INCORRECT.getMessage());
+            throw new BusinessException(TICKET_INCORRECT);
         }
 
         long currentTimestamp = System.currentTimeMillis();
         if (ticket.getTimestamp() < currentTimestamp) {
-            throw new BusinessException(TICKET_TIMEOUT.getStatus(), TICKET_TIMEOUT.getMessage());
+            throw new BusinessException(TICKET_TIMEOUT);
         }
 
         User user = userService.getUserByUserId(ticket.getUserId(),
@@ -192,7 +184,7 @@ public class UserCentralController {
                         "phone, email, wechat, weibo, third_id, third_type, avatar, status, create_time");
 
         if (user == null) {
-            throw new BusinessException(TICKET_INCORRECT.getStatus(), TICKET_INCORRECT.getMessage());
+            throw new BusinessException(TICKET_INCORRECT);
         }
 
         List<UserPrivilege> userPrivilegeList = userPrivilegeService.getUserPrivileges(user.getUserId());
@@ -217,19 +209,17 @@ public class UserCentralController {
     @PostMapping(M_API_USER_POST_GET_SESSION)
     public Result<UcSession> getSession(@RequestParam("accessToken") String accessTokenString) {
 
-        Result<UcSession> result = new Result<>();
-
         AccessToken accessToken =
                 TicketUtils.parseAccessToken(accessTokenString, accessTokenProperties.getTokenEncryptKey());
 
         if (accessToken == null) {
-            throw new BusinessException(ACCESS_TOKEN_INVALID.getStatus(), ACCESS_TOKEN_INVALID.getMessage());
+            throw new BusinessException(ACCESS_TOKEN_INVALID);
         }
 
         Session session = repository.findById(accessToken.getSessionId());
 
         if (session == null) {
-            throw new BusinessException(GLOBAL_SESSION_TIMEOUT.getStatus(), GLOBAL_SESSION_TIMEOUT.getMessage());
+            throw new BusinessException(GLOBAL_SESSION_TIMEOUT);
         }
 
         UcSession ucSession = session.getAttribute(SESSION_USER);
@@ -240,26 +230,20 @@ public class UserCentralController {
         sessionAccessToken.setMaxAge(accessTokenProperties.getTokenMaxAge().getSeconds());
         ucSession.setSessionAccessToken(sessionAccessToken);
 
-        result.setData(ucSession);
-        result.setStatus(GLOBAL_SESSION_REFRESH_SUCCESS.getStatus());
-        result.setMessage(GLOBAL_SESSION_REFRESH_SUCCESS.getMessage());
-        return result;
+        return Result.of(GLOBAL_SESSION_REFRESH_SUCCESS, ucSession);
     }
 
     @PostMapping(M_API_USER_GET_LOGOUT)
     public Result logout(HttpServletRequest request) {
 
-        Result result = new Result();
         HttpSession session = request.getSession(false);
-        ConstPair constPair = session != null ? USER_LOGOUT_SUCCESS : USER_LOGOUT_FAIL;
+        BusinessCode businessCode = session != null ? USER_LOGOUT_SUCCESS : USER_LOGOUT_FAIL;
 
         if (session != null) {
             session.invalidate();
         }
 
-        result.setStatus(constPair.getStatus());
-        result.setMessage(constPair.getMessage());
-        return result;
+        return Result.of(businessCode);
     }
 
     private void redirect(String ticket, Integer status, String message, HttpServletResponse response) {
