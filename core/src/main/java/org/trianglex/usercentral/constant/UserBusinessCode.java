@@ -1,10 +1,10 @@
 package org.trianglex.usercentral.constant;
 
-import org.trianglex.common.exception.BusinessCode;
+import org.trianglex.common.exception.ApiCode;
 
-import static org.trianglex.usercentral.constant.CommonBusinessCode.SUCCESS;
+import static org.trianglex.usercentral.constant.CommonCode.SUCCESS;
 
-public enum UserBusinessCode implements BusinessCode {
+public enum UserBusinessCode implements ApiCode {
 
     USER_REGISTER_SUCCESS(SUCCESS.getStatus(), "账号注册成功"),
     USER_REGISTER_FAIL(100, "账号注册失败"),

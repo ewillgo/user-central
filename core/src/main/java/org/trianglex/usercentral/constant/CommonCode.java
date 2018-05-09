@@ -1,8 +1,8 @@
 package org.trianglex.usercentral.constant;
 
-import org.trianglex.common.exception.BusinessCode;
+import org.trianglex.common.exception.ApiCode;
 
-public enum CommonBusinessCode implements BusinessCode {
+public enum CommonCode implements ApiCode {
 
     SUCCESS(0, "操作成功"),
     FAIL(-1, "操作失败");
@@ -10,7 +10,7 @@ public enum CommonBusinessCode implements BusinessCode {
     private Integer status;
     private String message;
 
-    CommonBusinessCode(Integer status, String message) {
+    CommonCode(Integer status, String message) {
         this.status = status;
         this.message = message;
     }
