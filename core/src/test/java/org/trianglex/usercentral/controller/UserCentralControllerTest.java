@@ -11,10 +11,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.trianglex.common.controller.AbstractMockController;
 import org.trianglex.common.util.JavaBeanUtils;
 import org.trianglex.usercentral.CoreApplication;
-import org.trianglex.usercentral.client.dto.UasLoginRequest;
-import org.trianglex.usercentral.client.dto.UasRegisterRequest;
+import org.trianglex.usercentral.api.dto.UasLoginRequest;
+import org.trianglex.usercentral.api.dto.UasRegisterRequest;
 
-import static org.trianglex.usercentral.client.constant.UrlConstant.*;
+import static org.trianglex.usercentral.api.constant.UrlConstant.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = CoreApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

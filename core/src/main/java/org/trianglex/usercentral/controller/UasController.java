@@ -17,12 +17,12 @@ import org.trianglex.common.security.auth.ApiAuthorization;
 import org.trianglex.common.util.PasswordUtils;
 import org.trianglex.common.util.RegexUtils;
 import org.trianglex.common.util.ToolUtils;
-import org.trianglex.usercentral.client.domain.User;
-import org.trianglex.usercentral.client.domain.UserPrivilege;
-import org.trianglex.usercentral.client.dto.*;
-import org.trianglex.usercentral.client.session.AccessToken;
-import org.trianglex.usercentral.client.session.Ticket;
-import org.trianglex.usercentral.client.session.UasSession;
+import org.trianglex.usercentral.api.domain.User;
+import org.trianglex.usercentral.api.domain.UserPrivilege;
+import org.trianglex.usercentral.api.dto.*;
+import org.trianglex.usercentral.api.session.AccessToken;
+import org.trianglex.usercentral.api.session.Ticket;
+import org.trianglex.usercentral.api.session.UasSession;
 import org.trianglex.usercentral.service.UserPrivilegeService;
 import org.trianglex.usercentral.service.UserService;
 import org.trianglex.usercentral.util.TicketUtils;
@@ -32,10 +32,10 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.List;
 
-import static org.trianglex.usercentral.client.constant.CommonCode.SUCCESS;
-import static org.trianglex.usercentral.client.constant.UrlConstant.*;
-import static org.trianglex.usercentral.client.constant.UserApiCode.*;
-import static org.trianglex.usercentral.client.constant.UserConstant.SESSION_USER;
+import static org.trianglex.usercentral.api.constant.CommonCode.SUCCESS;
+import static org.trianglex.usercentral.api.constant.UrlConstant.*;
+import static org.trianglex.usercentral.api.constant.UserApiCode.*;
+import static org.trianglex.usercentral.api.constant.UserConstant.SESSION_USER;
 import static org.trianglex.usercentral.constant.SystemConstant.SIGN_ERROR;
 
 @RestController

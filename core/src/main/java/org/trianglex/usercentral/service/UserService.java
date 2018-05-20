@@ -3,7 +3,7 @@ package org.trianglex.usercentral.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.trianglex.common.database.DataSource;
-import org.trianglex.usercentral.client.domain.User;
+import org.trianglex.usercentral.api.domain.User;
 import org.trianglex.usercentral.dao.UserDAO;
 
 import static org.trianglex.usercentral.constant.DataSourceNames.USERCENTRAL;
