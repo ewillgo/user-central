@@ -1,50 +1,22 @@
-package org.trianglex.usercentral.dto;
+package org.trianglex.usercentral.client.domain;
 
-import org.trianglex.common.dto.DtoAttributes;
-import org.trianglex.common.security.auth.ApiAttributes;
-import org.trianglex.common.validation.IsIdCard;
-import org.trianglex.common.validation.IsNickname;
-import org.trianglex.common.validation.IsPhone;
-import org.trianglex.usercentral.domain.User;
-import org.trianglex.usercentral.enums.ThirdType;
+import org.trianglex.usercentral.client.enums.ThirdType;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
-import static org.trianglex.usercentral.constant.UserConstant.*;
+public class User {
 
-public class RegisterRequest extends ApiAttributes implements DtoAttributes<User> {
-
-    private static final long serialVersionUID = 1498144726563297831L;
-
+    private Integer id;
     private String userId;
-
-    @NotBlank(message = USERNAME_NOT_BLANK)
-    @Email(message = EMAIL_INCORRECT)
     private String username;
-
-    @NotBlank(message = PASSWORD_NOT_BLANK)
     private String password;
-
-    @NotBlank(message = NICKNAME_NOT_BLANK)
-    @IsNickname(message = NICKNAME_INCORRECT)
+    private String salt;
     private String nickname;
-
-    @NotNull(message = GENDER_NOT_NULL)
     private Integer gender;
-
-    @IsIdCard(message = ID_CARD_INCORRECT)
     private String idCard;
-
     private String birth;
-
-    @IsPhone(message = PHONE_INCORRECT)
     private String phone;
-
-    @Email(message = EMAIL_INCORRECT)
     private String email;
-
     private String wechat;
     private String weibo;
     private String province;
@@ -52,6 +24,18 @@ public class RegisterRequest extends ApiAttributes implements DtoAttributes<User
     private String address;
     private String thirdId;
     private ThirdType thirdType;
+    private String avatar;
+    private Integer status;
+    private LocalDateTime createTime;
+    private LocalDateTime updateTime;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public String getUserId() {
         return userId;
@@ -75,6 +59,14 @@ public class RegisterRequest extends ApiAttributes implements DtoAttributes<User
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 
     public String getNickname() {
@@ -179,5 +171,37 @@ public class RegisterRequest extends ApiAttributes implements DtoAttributes<User
 
     public void setThirdType(ThirdType thirdType) {
         this.thirdType = thirdType;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
     }
 }

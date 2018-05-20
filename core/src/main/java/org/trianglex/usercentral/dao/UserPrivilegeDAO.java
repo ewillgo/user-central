@@ -2,7 +2,7 @@ package org.trianglex.usercentral.dao;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.trianglex.usercentral.domain.UserPrivilege;
+import org.trianglex.usercentral.client.domain.UserPrivilege;
 
 import java.util.List;
 

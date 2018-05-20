@@ -17,10 +17,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.trianglex</groupId>
-            <artifactId>trianglex-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
@@ -30,7 +26,7 @@
         </dependency>
         <dependency>
             <groupId>org.trianglex.usercentral</groupId>
-            <artifactId>user-central-common</artifactId>
+            <artifactId>user-central-api</artifactId>
         </dependency>
     </dependencies>
 

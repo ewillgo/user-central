@@ -1,10 +1,8 @@
-package org.trianglex.usercentral.constant;
+package org.trianglex.usercentral.client.constant;
 
 public interface UserConstant {
 
-    int SUCCESS = 0;
-    String SESSION_USER = "SESSION:USER";
-    String SIGN_ERROR = "签名无效";
+    String SESSION_USER = "session:user";
 
     String USERNAME_NOT_BLANK = "1000#账号不能为空";
     String PASSWORD_NOT_BLANK = "1001#密码不能为空";
@@ -23,5 +21,8 @@ public interface UserConstant {
     String ID_CARD_INCORRECT = "1013#身份证号格式不正确";
     String PHONE_INCORRECT = "1013#手机号码格式不正确";
     String NICKNAME_INCORRECT = "1014#昵称由中文、字母和数字组成";
+    String UUID_ERROR = "1015#用户ID不是合法的UUID/GUID";
+    String SESSION_ID_NOT_BLANK = "1016#会话ID不能为空";
+    String ACCESS_TOKEN_NOT_BLANK = "1017#令牌不能为空";
 
 }

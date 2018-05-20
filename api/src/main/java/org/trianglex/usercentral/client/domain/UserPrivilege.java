@@ -1,4 +1,4 @@
-package org.trianglex.usercentral.domain;
+package org.trianglex.usercentral.client.domain;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

@@ -1,10 +1,10 @@
-package org.trianglex.usercentral.dto;
+package org.trianglex.usercentral.client.dto;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import static org.trianglex.usercentral.constant.UserConstant.*;
+import static org.trianglex.usercentral.client.constant.UserConstant.*;
 
 public class UserPaginateRequest {
 

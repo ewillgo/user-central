@@ -3,84 +3,137 @@ package org.trianglex.usercentral.client.session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.context.annotation.Import;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.util.WebUtils;
 import org.trianglex.common.dto.Result;
-import org.trianglex.common.support.ConstPair;
-import org.trianglex.common.util.JsonUtils;
-import org.trianglex.usercentral.session.UcSession;
+import org.trianglex.common.exception.ApiErrorException;
+import org.trianglex.common.security.auth.SignUtils;
+import org.trianglex.usercentral.client.UasClient;
+import org.trianglex.usercentral.client.constant.CommonCode;
+import org.trianglex.usercentral.client.dto.RemoteSessionRequest;
+import org.trianglex.usercentral.client.dto.RemoteSessionResponse;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 import java.util.Optional;
 
-import static org.trianglex.usercentral.client.constant.ClientConstant.*;
+import static org.trianglex.usercentral.client.constant.CommonCode.SESSION_INVALID;
+import static org.trianglex.usercentral.client.constant.CommonCode.SESSION_TIMEOUT;
+import static org.trianglex.usercentral.client.constant.UserConstant.SESSION_USER;
 
+@Import(UasProperties.class)
 public class SessionClientInterceptor extends HandlerInterceptorAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(SessionClientInterceptor.class);
+    private static final String ACCESS_TOKEN_INTERVAL_NAME = "_%s_itv_";
 
     @Autowired
-    private RemoteRequest remoteRequest;
+    private UasClient uasClient;
+
+    @Autowired
+    private UasProperties uasProperties;
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        Cookie uctoken = WebUtils.getCookie(request, COOKIE_NAME);
-        String accessTokenString = Optional.ofNullable(uctoken)
+        // 优先从Cookie里面获取令牌数据，否则从Request里面获取
+        // 从Request里面获取主要用于不同域名之间传递令牌
+        Cookie accessTokenCookie = WebUtils.getCookie(request, uasProperties.getCookieName());
+        String accessTokenString = Optional.of(accessTokenCookie)
                 .map(Cookie::getValue).orElseGet(() -> request.getParameter("accessToken"));
 
+        // 没有发现令牌，会话失效
         if (StringUtils.isEmpty(accessTokenString)) {
-            returnResult(ACCESS_TOCKEN_INVALIDATE, response);
-            return false;
+            throw new ApiErrorException(SESSION_INVALID);
         }
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute(SESSION_USER) == null) {
-            try {
-                Result<UcSession> result = remoteRequest.getRemoteSession(accessTokenString);
+        if (session == null || session.getAttribute(SESSION_USER) == null
+                || autoRefreshRemoteSessionIfNecessary(request)) {
 
-                if (result.getData() == null) {
-                    returnResult(ConstPair.make(result.getStatus(), result.getMessage()), response);
-                    return false;
-                }
-
-                UcSession ucSession = result.getData();
-                UcSession.SessionUser sessionUser = ucSession.getSessionUser();
-
-                if (!StringUtils.isEmpty(ucSession.getSessionAccessToken().getToken())) {
-                    Cookie cookie = new Cookie(COOKIE_NAME, ucSession.getSessionAccessToken().getToken());
-                    cookie.setMaxAge((int) ucSession.getSessionAccessToken().getMaxAge());
-                    cookie.setHttpOnly(true);
-                    cookie.setPath("/");
-                    response.addCookie(cookie);
-                }
-
-                session = request.getSession();
-                session.setAttribute(SESSION_USER, sessionUser);
-            } catch (IOException e) {
-                logger.error(e.getMessage(), e);
-                returnResult(ACCESS_TOCKEN_EXCEPTION, response);
-                return false;
+            RemoteSessionResponse remoteSessionResponse = getRemoteSession(accessTokenString);
+            if (!StringUtils.isEmpty(remoteSessionResponse.getAccessTokenString())) {
+                accessTokenCookie = new Cookie(uasProperties.getCookieName(), remoteSessionResponse.getAccessTokenString());
+                accessTokenCookie.setMaxAge((int) uasProperties.getCookieMaxAge().getSeconds());
+                accessTokenCookie.setHttpOnly(uasProperties.isUseHttpOnlyCookie());
+                accessTokenCookie.setPath(uasProperties.getCookiePath());
+                accessTokenCookie.setDomain(uasProperties.getCookieDomain());
+                response.addCookie(accessTokenCookie);
             }
+
+            Cookie accessTokenIntervalCookie = new Cookie(
+                    String.format(ACCESS_TOKEN_INTERVAL_NAME, uasProperties.getCookieName()),
+                    String.valueOf(remoteSessionResponse.getAccessTokenInterval()));
+            accessTokenIntervalCookie.setMaxAge((int) uasProperties.getCookieMaxAge().getSeconds());
+            accessTokenIntervalCookie.setHttpOnly(uasProperties.isUseHttpOnlyCookie());
+            accessTokenIntervalCookie.setPath(uasProperties.getCookiePath());
+            accessTokenIntervalCookie.setDomain(uasProperties.getCookieDomain());
+            response.addCookie(accessTokenIntervalCookie);
+
+            session = request.getSession();
+            session.setAttribute(SESSION_USER, remoteSessionResponse.getUasSession());
+
+            return true;
         }
 
         return true;
     }
 
-    private void returnResult(ConstPair pair, HttpServletResponse response) throws IOException {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        try (ServletOutputStream servletOutputStream = response.getOutputStream()) {
-            Result result = new Result(pair.getStatus(), pair.getMessage());
-            servletOutputStream.write(JsonUtils.toJsonString(result).getBytes());
+    /**
+     * 判断是否需要刷新远程会话信息
+     */
+    private boolean autoRefreshRemoteSessionIfNecessary(HttpServletRequest request) {
+
+        // 获取令牌更新时间戳
+        Cookie accessTokenIntervalCookie = WebUtils.getCookie(
+                request, String.format(ACCESS_TOKEN_INTERVAL_NAME, uasProperties.getCookieName()));
+
+        long accessTokenInterval;
+
+        try {
+
+            if (accessTokenIntervalCookie != null && !StringUtils.isEmpty(accessTokenIntervalCookie.getValue())) {
+                accessTokenInterval = Long.valueOf(accessTokenIntervalCookie.getValue());
+            } else {
+                return false;
+            }
+
+        } catch (Exception e) {
+            return false;
         }
+
+        return System.currentTimeMillis() >= accessTokenInterval;
+    }
+
+    /**
+     * 获取远程会话信息
+     */
+    private RemoteSessionResponse getRemoteSession(String accessTokenString) {
+
+        RemoteSessionRequest remoteSessionRequest = new RemoteSessionRequest();
+        remoteSessionRequest.setAccessTokenString(accessTokenString);
+        remoteSessionRequest.setAppKey(uasProperties.getAppKey());
+        remoteSessionRequest.setOriginalString(SignUtils.generateOriginalString(remoteSessionRequest));
+        remoteSessionRequest.setSign(SignUtils.sign(remoteSessionRequest, uasProperties.getAppSecret()));
+
+        Result<RemoteSessionResponse> result;
+        try {
+            result = uasClient.getRemoteSession(remoteSessionRequest);
+        } catch (Exception e) {
+            // 虽然获取远程会话超时，但是不等于远程会话已经失效，所以提示用户刷新页面，以便重新获取
+            throw new ApiErrorException(SESSION_TIMEOUT, e);
+        }
+
+        // 远程会话失效
+        if (result.getStatus() != CommonCode.SUCCESS.getStatus().intValue()) {
+            throw new ApiErrorException(SESSION_INVALID);
+        }
+
+        return result.getData();
     }
 
 }

@@ -6,15 +6,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.trianglex.common.dto.Result;
-import org.trianglex.usercentral.domain.User;
-import org.trianglex.usercentral.dto.UpdateUserRequest;
-import org.trianglex.usercentral.dto.UserPaginateRequest;
-import org.trianglex.usercentral.dto.UserRequest;
+import org.trianglex.usercentral.client.domain.User;
+import org.trianglex.usercentral.client.dto.UpdateUserRequest;
+import org.trianglex.usercentral.client.dto.UserPaginateRequest;
+import org.trianglex.usercentral.client.dto.UserRequest;
 import org.trianglex.usercentral.service.UserService;
 
 import javax.validation.Valid;
 
-import static org.trianglex.usercentral.constant.UrlConstant.*;
+import static org.trianglex.usercentral.client.constant.UrlConstant.*;
 
 @RestController
 @RequestMapping(C_USER)

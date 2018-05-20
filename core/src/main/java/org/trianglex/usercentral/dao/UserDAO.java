@@ -2,7 +2,7 @@ package org.trianglex.usercentral.dao;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.trianglex.usercentral.domain.User;
+import org.trianglex.usercentral.client.domain.User;
 
 @Mapper
 public interface UserDAO {

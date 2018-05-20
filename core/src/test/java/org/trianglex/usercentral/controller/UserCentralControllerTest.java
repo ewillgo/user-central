@@ -11,10 +11,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.trianglex.common.controller.AbstractMockController;
 import org.trianglex.common.util.JavaBeanUtils;
 import org.trianglex.usercentral.CoreApplication;
-import org.trianglex.usercentral.dto.LoginRequest;
-import org.trianglex.usercentral.dto.RegisterRequest;
+import org.trianglex.usercentral.client.dto.LoginRequest;
+import org.trianglex.usercentral.client.dto.RegisterRequest;
 
-import static org.trianglex.usercentral.constant.UrlConstant.*;
+import static org.trianglex.usercentral.client.constant.UrlConstant.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = CoreApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -30,7 +30,7 @@ public class UserCentralControllerTest extends AbstractMockController<UserCentra
         userDTO.setNickname("窗外的麻雀，在电线杆上多嘴。");
         userDTO.setGender(0);
 
-        MvcResult mvcResult = mockPost(C_API_USER + M_API_USER_GET_REGISTER, JavaBeanUtils.beanToMap(userDTO));
+        MvcResult mvcResult = mockPost(C_API_USER + M_API_USER_POST_REGISTER, JavaBeanUtils.beanToMap(userDTO));
         logger.info(mvcResult.getResponse().getContentAsString());
     }
 
@@ -40,7 +40,7 @@ public class UserCentralControllerTest extends AbstractMockController<UserCentra
         loginDTO.setUsername("test@gmail.com");
         loginDTO.setPassword(DigestUtils.md5Hex("123456"));
 
-        MvcResult mvcResult = mockPost(C_API_USER + M_API_USER_GET_LOGIN, JavaBeanUtils.beanToMap(loginDTO));
+        MvcResult mvcResult = mockPost(C_API_USER + M_API_USER_POST_LOGIN, JavaBeanUtils.beanToMap(loginDTO));
         logger.info(mvcResult.getResponse().getContentAsString());
     }
 }

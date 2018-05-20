@@ -42,7 +42,7 @@
         )
     </insert>
 
-    <select id="getUserByUsernameAndPassword" resultType="org.trianglex.usercentral.domain.User">
+    <select id="getUserByUsernameAndPassword" resultType="org.trianglex.usercentral.client.domain.User">
         select ${fields}
         from t_users
         where
@@ -52,7 +52,7 @@
         limit 1
     </select>
 
-    <select id="getUserByUserId" resultType="org.trianglex.usercentral.domain.User">
+    <select id="getUserByUserId" resultType="org.trianglex.usercentral.client.domain.User">
         select ${fields}
         from t_users
         where
@@ -60,7 +60,7 @@
         limit 1
     </select>
 
-    <select id="getUserByUsername" resultType="org.trianglex.usercentral.domain.User">
+    <select id="getUserByUsername" resultType="org.trianglex.usercentral.client.domain.User">
         select ${fields}
         from t_users
         where
