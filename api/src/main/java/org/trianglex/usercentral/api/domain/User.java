@@ -2,10 +2,12 @@ package org.trianglex.usercentral.api.domain;
 
 import org.trianglex.usercentral.api.enums.ThirdType;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class User {
+public class User implements Serializable {
 
+    private static final long serialVersionUID = -2867681013953401857L;
     private Integer id;
     private String userId;
     private String username;

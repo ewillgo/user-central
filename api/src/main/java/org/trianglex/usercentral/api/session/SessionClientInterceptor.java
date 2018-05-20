@@ -117,7 +117,6 @@ public class SessionClientInterceptor extends HandlerInterceptorAdapter {
         RemoteSessionRequest remoteSessionRequest = new RemoteSessionRequest();
         remoteSessionRequest.setAccessTokenString(accessTokenString);
         remoteSessionRequest.setAppKey(uasProperties.getAppKey());
-        remoteSessionRequest.setOriginalString(SignUtils.generateOriginalString(remoteSessionRequest));
         remoteSessionRequest.setSign(SignUtils.sign(remoteSessionRequest, uasProperties.getAppSecret()));
 
         Result<RemoteSessionResponse> result;
