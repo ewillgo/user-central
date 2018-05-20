@@ -20,11 +20,11 @@ import org.trianglex.common.util.ToolUtils;
 import org.trianglex.usercentral.client.domain.User;
 import org.trianglex.usercentral.client.domain.UserPrivilege;
 import org.trianglex.usercentral.client.dto.*;
+import org.trianglex.usercentral.client.session.AccessToken;
+import org.trianglex.usercentral.client.session.Ticket;
 import org.trianglex.usercentral.client.session.UasSession;
 import org.trianglex.usercentral.service.UserPrivilegeService;
 import org.trianglex.usercentral.service.UserService;
-import org.trianglex.usercentral.client.session.AccessToken;
-import org.trianglex.usercentral.client.session.Ticket;
 import org.trianglex.usercentral.util.TicketUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -170,7 +170,6 @@ public class UasController {
             throw new ApiErrorException(GLOBAL_SESSION_TIMEOUT);
         }
 
-        accessToken.setInterval(AccessToken.interval());
         String accessTokenString = TicketUtils.generateAccessToken(accessToken, appSecret);
 
         if (StringUtils.isEmpty(accessTokenString)) {
@@ -193,7 +192,7 @@ public class UasController {
 
     private String generateTicket(String appKey, String appSecret, String userId, String sessionId) {
 
-        AccessToken accessToken = new AccessToken(userId, sessionId, AccessToken.interval());
+        AccessToken accessToken = new AccessToken(userId, sessionId);
         String accessTokenString = TicketUtils.generateAccessToken(accessToken, appSecret);
 
         if (StringUtils.isEmpty(accessTokenString)) {

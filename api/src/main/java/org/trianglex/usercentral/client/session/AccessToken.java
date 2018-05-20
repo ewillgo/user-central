@@ -6,16 +6,14 @@ public class AccessToken {
 
     private String userId;
     private String sessionId;
-    private long interval;
 
     public AccessToken() {
 
     }
 
-    public AccessToken(String userId, String sessionId, long interval) {
+    public AccessToken(String userId, String sessionId) {
         this.userId = userId;
         this.sessionId = sessionId;
-        this.interval = interval;
     }
 
     public String getUserId() {
@@ -32,14 +30,6 @@ public class AccessToken {
 
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
-    }
-
-    public long getInterval() {
-        return interval;
-    }
-
-    public void setInterval(long interval) {
-        this.interval = interval;
     }
 
     public static long interval() {
