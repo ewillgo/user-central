@@ -11,20 +11,20 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.trianglex.common.controller.AbstractMockController;
 import org.trianglex.common.util.JavaBeanUtils;
 import org.trianglex.usercentral.CoreApplication;
-import org.trianglex.usercentral.client.dto.LoginRequest;
-import org.trianglex.usercentral.client.dto.RegisterRequest;
+import org.trianglex.usercentral.client.dto.UasLoginRequest;
+import org.trianglex.usercentral.client.dto.UasRegisterRequest;
 
 import static org.trianglex.usercentral.client.constant.UrlConstant.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = CoreApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class UserCentralControllerTest extends AbstractMockController<UserCentralController> {
+public class UserCentralControllerTest extends AbstractMockController<UasController> {
 
     private static final Logger logger = LoggerFactory.getLogger(UserCentralControllerTest.class);
 
     @Test
     public void addUserTest() throws Exception {
-        RegisterRequest userDTO = new RegisterRequest();
+        UasRegisterRequest userDTO = new UasRegisterRequest();
         userDTO.setUsername("test@gmail.com");
         userDTO.setPassword(DigestUtils.md5Hex("123456"));
         userDTO.setNickname("窗外的麻雀，在电线杆上多嘴。");
@@ -36,7 +36,7 @@ public class UserCentralControllerTest extends AbstractMockController<UserCentra
 
     @Test
     public void loginTest() throws Exception {
-        LoginRequest loginDTO = new LoginRequest();
+        UasLoginRequest loginDTO = new UasLoginRequest();
         loginDTO.setUsername("test@gmail.com");
         loginDTO.setPassword(DigestUtils.md5Hex("123456"));
 

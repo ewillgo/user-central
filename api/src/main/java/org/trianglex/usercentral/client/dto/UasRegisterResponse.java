@@ -1,18 +1,9 @@
 package org.trianglex.usercentral.client.dto;
 
-public class LoginResponse {
+public class UasRegisterResponse {
 
     private String userId;
     private String ticketString;
-
-    public LoginResponse() {
-
-    }
-
-    public LoginResponse(String userId, String ticketString) {
-        this.userId = userId;
-        this.ticketString = ticketString;
-    }
 
     public String getUserId() {
         return userId;

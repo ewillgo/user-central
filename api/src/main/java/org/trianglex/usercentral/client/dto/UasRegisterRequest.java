@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 
 import static org.trianglex.usercentral.client.constant.UserConstant.*;
 
-public class RegisterRequest extends ApiAttributes implements DtoAttributes<User> {
+public class UasRegisterRequest extends ApiAttributes implements DtoAttributes<User> {
 
     private static final long serialVersionUID = 1498144726563297831L;
 

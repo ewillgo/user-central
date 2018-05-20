@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 import static org.trianglex.usercentral.client.constant.UserConstant.PASSWORD_NOT_BLANK;
 import static org.trianglex.usercentral.client.constant.UserConstant.USERNAME_NOT_BLANK;
 
-public class LoginRequest extends ApiAttributes {
+public class UasLoginRequest extends ApiAttributes {
 
     @NotBlank(message = USERNAME_NOT_BLANK)
     private String username;

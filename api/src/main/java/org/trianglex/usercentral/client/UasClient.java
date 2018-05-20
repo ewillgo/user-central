@@ -20,21 +20,21 @@ public interface UasClient {
      */
     @ResponseBody
     @PostMapping(M_API_USER_POST_REGISTER)
-    Result<RegisterResponse> register(@Valid @RequestBody RegisterRequest registerRequest);
+    Result<UasRegisterResponse> register(@Valid @RequestBody UasRegisterRequest uasRegisterRequest);
 
     /**
      * 用户登录
      */
     @ResponseBody
     @PostMapping(value = M_API_USER_POST_LOGIN)
-    Result<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest);
+    Result<UasLoginResponse> login(@Valid @RequestBody UasLoginRequest uasLoginRequest);
 
     /**
      * 用户登出
      */
     @ResponseBody
     @PostMapping(M_API_USER_POST_LOGOUT)
-    Result logout(@Valid @RequestBody LogoutRequest logoutRequest);
+    Result logout(@Valid @RequestBody UasLogoutRequest uasLogoutRequest);
 
     /**
      * 获取远程会话信息

@@ -54,41 +54,41 @@ public class UasController {
 
     @ApiAuthorization(message = "注册" + SIGN_ERROR)
     @PostMapping(M_API_USER_POST_REGISTER)
-    public Result<RegisterResponse> register(
-            @Valid @RequestBody RegisterRequest registerRequest, HttpServletRequest request) {
+    public Result<UasRegisterResponse> register(
+            @Valid @RequestBody UasRegisterRequest uasRegisterRequest, HttpServletRequest request) {
 
         // 判断用户名是否存在
-        if (userService.isUsernameExists(registerRequest.getUsername())) {
+        if (userService.isUsernameExists(uasRegisterRequest.getUsername())) {
             throw new ApiErrorException(USER_NAME_EXISTS);
         }
 
         // 判断昵称是否存在
-        if (userService.isNicknameExists(registerRequest.getNickname())) {
+        if (userService.isNicknameExists(uasRegisterRequest.getNickname())) {
             throw new ApiErrorException(USER_NICKNAME_EXISTS);
         }
 
         // 判断手机号是否存在
-        if (!StringUtils.isEmpty(registerRequest.getPhone())
-                && userService.isPhoneExists(registerRequest.getPhone())) {
+        if (!StringUtils.isEmpty(uasRegisterRequest.getPhone())
+                && userService.isPhoneExists(uasRegisterRequest.getPhone())) {
             throw new ApiErrorException(USER_PHONE_EXISTS);
         }
 
         // 有传递邮箱才校验，如果用户名刚好是邮箱，则自动填充邮箱字段
-        if (!StringUtils.isEmpty(registerRequest.getEmail())
-                && !RegexUtils.isMatch(registerRequest.getEmail(), RegexUtils.EMAIL)) {
+        if (!StringUtils.isEmpty(uasRegisterRequest.getEmail())
+                && !RegexUtils.isMatch(uasRegisterRequest.getEmail(), RegexUtils.EMAIL)) {
             throw new ApiErrorException(USER_INCORRECT_EMAIL);
-        } else if (StringUtils.isEmpty(registerRequest.getEmail())
-                && RegexUtils.isMatch(registerRequest.getUsername(), RegexUtils.EMAIL)) {
-            registerRequest.setEmail(registerRequest.getUsername());
+        } else if (StringUtils.isEmpty(uasRegisterRequest.getEmail())
+                && RegexUtils.isMatch(uasRegisterRequest.getUsername(), RegexUtils.EMAIL)) {
+            uasRegisterRequest.setEmail(uasRegisterRequest.getUsername());
         }
 
         // 如果身份证长度合法，则自动计算性别和出生日期，并填充到相应字段
-        if (!StringUtils.isEmpty(registerRequest.getIdCard())) {
-            registerRequest.setGender(ToolUtils.extractGender(registerRequest.getIdCard()));
-            registerRequest.setBirth(ToolUtils.extractBirth(registerRequest.getIdCard()));
+        if (!StringUtils.isEmpty(uasRegisterRequest.getIdCard())) {
+            uasRegisterRequest.setGender(ToolUtils.extractGender(uasRegisterRequest.getIdCard()));
+            uasRegisterRequest.setBirth(ToolUtils.extractBirth(uasRegisterRequest.getIdCard()));
         }
 
-        User user = registerRequest.toPO(new User());
+        User user = uasRegisterRequest.toPO(new User());
         user.setUserId(StringUtils.isEmpty(user.getUserId())
                 ? ToolUtils.getUUID()
                 : user.getUserId().toLowerCase().replaceAll("-", ""));
@@ -109,25 +109,25 @@ public class UasController {
         HttpSession session = request.getSession();
         processSession(user, session);
 
-        RegisterResponse registerResponse = new RegisterResponse();
-        registerResponse.setUserId(user.getUserId());
-        registerResponse.setTicketString(generateTicket(
-                registerRequest.getAppKey(), TicketUtils.getAppSecret(request), user.getUserId(), session.getId()));
+        UasRegisterResponse uasRegisterResponse = new UasRegisterResponse();
+        uasRegisterResponse.setUserId(user.getUserId());
+        uasRegisterResponse.setTicketString(generateTicket(
+                uasRegisterRequest.getAppKey(), TicketUtils.getAppSecret(request), user.getUserId(), session.getId()));
 
-        return Result.of(ret ? SUCCESS : USER_REGISTER_FAIL, registerResponse);
+        return Result.of(ret ? SUCCESS : USER_REGISTER_FAIL, uasRegisterResponse);
     }
 
     @ApiAuthorization(message = "登录" + SIGN_ERROR)
     @PostMapping(value = M_API_USER_POST_LOGIN)
-    public Result<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request) {
+    public Result<UasLoginResponse> login(@Valid @RequestBody UasLoginRequest uasLoginRequest, HttpServletRequest request) {
 
-        User user = userService.getUserByUsername(loginRequest.getUsername(), "salt");
+        User user = userService.getUserByUsername(uasLoginRequest.getUsername(), "salt");
         if (user == null) {
             throw new ApiErrorException(USER_NOT_EXISTS);
         }
 
-        user = userService.getUserByUsernameAndPassword(loginRequest.getUsername(),
-                PasswordUtils.password(loginRequest.getPassword(), user.getSalt()), "user_id");
+        user = userService.getUserByUsernameAndPassword(uasLoginRequest.getUsername(),
+                PasswordUtils.password(uasLoginRequest.getPassword(), user.getSalt()), "user_id");
 
         if (user == null) {
             throw new ApiErrorException(USER_NOT_EXISTS);
@@ -136,17 +136,17 @@ public class UasController {
         HttpSession session = request.getSession();
         processSession(user.getUserId(), session);
 
-        LoginResponse loginResponse = new LoginResponse();
-        loginResponse.setUserId(user.getUserId());
-        loginResponse.setTicketString(generateTicket(
-                loginRequest.getAppKey(), TicketUtils.getAppSecret(request), user.getUserId(), session.getId()));
+        UasLoginResponse uasLoginResponse = new UasLoginResponse();
+        uasLoginResponse.setUserId(user.getUserId());
+        uasLoginResponse.setTicketString(generateTicket(
+                uasLoginRequest.getAppKey(), TicketUtils.getAppSecret(request), user.getUserId(), session.getId()));
 
-        return Result.of(SUCCESS, loginResponse);
+        return Result.of(SUCCESS, uasLoginResponse);
     }
 
     @ApiAuthorization(message = "登出" + SIGN_ERROR)
     @PostMapping(M_API_USER_POST_LOGOUT)
-    public Result logout(@Valid @RequestBody LogoutRequest logoutRequest) {
+    public Result logout(@Valid @RequestBody UasLogoutRequest uasLogoutRequest) {
         HttpSession session = null;
         ApiCode apiCode = session != null ? SUCCESS : USER_LOGOUT_FAIL;
         return Result.of(apiCode);

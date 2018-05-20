@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 
 import static org.trianglex.usercentral.client.constant.UserConstant.*;
 
-public class LogoutRequest extends ApiAttributes {
+public class UasLogoutRequest extends ApiAttributes {
 
     @NotBlank(message = USER_ID_NOT_BLANK)
     @IsUUID(message = UUID_ERROR)
