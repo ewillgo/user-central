@@ -8,7 +8,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.util.WebUtils;
 import org.trianglex.common.dto.Result;
-import org.trianglex.common.exception.ApiErrorException;
+import org.trianglex.common.exception.ClientApiException;
 import org.trianglex.common.security.auth.SignUtils;
 import org.trianglex.usercentral.api.UasClient;
 import org.trianglex.usercentral.api.constant.CommonCode;
@@ -23,7 +23,7 @@ import java.util.Optional;
 
 import static org.trianglex.usercentral.api.constant.CommonCode.SESSION_INVALID;
 import static org.trianglex.usercentral.api.constant.CommonCode.SESSION_TIMEOUT;
-import static org.trianglex.usercentral.api.constant.UserConstant.SESSION_USER;
+import static org.trianglex.usercentral.api.constant.UasConstant.SESSION_USER;
 
 @Import(UasProperties.class)
 public class SessionClientInterceptor extends HandlerInterceptorAdapter {
@@ -48,7 +48,7 @@ public class SessionClientInterceptor extends HandlerInterceptorAdapter {
 
         // 没有发现令牌，会话失效
         if (StringUtils.isEmpty(accessTokenString)) {
-            throw new ApiErrorException(SESSION_INVALID);
+            throw new ClientApiException(SESSION_INVALID);
         }
 
         HttpSession session = request.getSession(false);
@@ -124,12 +124,12 @@ public class SessionClientInterceptor extends HandlerInterceptorAdapter {
             result = uasClient.getRemoteSession(remoteSessionRequest);
         } catch (Exception e) {
             // 虽然获取远程会话超时，但是不等于远程会话已经失效，所以提示用户刷新页面，以便重新获取
-            throw new ApiErrorException(SESSION_TIMEOUT, e);
+            throw new ClientApiException(SESSION_TIMEOUT, e);
         }
 
         // 远程会话失效
         if (result.getStatus() != CommonCode.SUCCESS.getStatus().intValue()) {
-            throw new ApiErrorException(SESSION_INVALID);
+            throw new ClientApiException(SESSION_INVALID);
         }
 
         return result.getData();

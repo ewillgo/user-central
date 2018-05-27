@@ -4,7 +4,7 @@ import org.trianglex.common.validation.IsUUID;
 
 import javax.validation.constraints.NotBlank;
 
-import static org.trianglex.usercentral.api.constant.UserConstant.*;
+import static org.trianglex.usercentral.api.constant.UasConstant.*;
 
 public class UserRequest {
 

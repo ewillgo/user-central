@@ -1,6 +1,6 @@
 package org.trianglex.usercentral.api.constant;
 
-public interface UserConstant {
+public interface UasConstant {
 
     String SESSION_USER = "session:user";
 

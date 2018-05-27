@@ -6,7 +6,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Map;
 
-import static org.trianglex.usercentral.api.constant.UserConstant.*;
+import static org.trianglex.usercentral.api.constant.UasConstant.*;
 
 public class UpdateUserRequest {
 

@@ -13,7 +13,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import static org.trianglex.usercentral.api.constant.UserConstant.*;
+import static org.trianglex.usercentral.api.constant.UasConstant.*;
 
 public class UasRegisterRequest extends ApiAttributes implements DtoAttributes<User> {
 

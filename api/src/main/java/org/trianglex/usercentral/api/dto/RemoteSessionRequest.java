@@ -4,7 +4,7 @@ import org.trianglex.common.security.auth.ApiAttributes;
 
 import javax.validation.constraints.NotBlank;
 
-import static org.trianglex.usercentral.api.constant.UserConstant.ACCESS_TOKEN_NOT_BLANK;
+import static org.trianglex.usercentral.api.constant.UasConstant.ACCESS_TOKEN_NOT_BLANK;
 
 public class RemoteSessionRequest extends ApiAttributes {
 

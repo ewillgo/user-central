@@ -3,7 +3,7 @@ package org.trianglex.usercentral.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
-import org.trianglex.common.exception.ApiErrorException;
+import org.trianglex.common.exception.ServiceApiException;
 import org.trianglex.common.util.AES256Utils;
 import org.trianglex.common.util.DESUtils;
 import org.trianglex.common.util.JsonUtils;
@@ -13,7 +13,7 @@ import org.trianglex.usercentral.api.session.Ticket;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 
-import static org.trianglex.usercentral.api.constant.UserApiCode.APP_SECRET_NOT_FOUND;
+import static org.trianglex.usercentral.api.constant.UasApiCode.APP_SECRET_NOT_FOUND;
 import static org.trianglex.usercentral.constant.SystemConstant.APP_SECRET_KEY;
 
 public abstract class TicketUtils {
@@ -28,7 +28,7 @@ public abstract class TicketUtils {
     public static String getAppSecret(HttpServletRequest request) {
         String appSecret = (String) request.getAttribute(APP_SECRET_KEY);
         if (StringUtils.isEmpty(appSecret)) {
-            throw new ApiErrorException(APP_SECRET_NOT_FOUND);
+            throw new ServiceApiException(APP_SECRET_NOT_FOUND);
         }
         return appSecret;
     }

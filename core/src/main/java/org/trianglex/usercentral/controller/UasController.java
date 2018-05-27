@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.trianglex.common.dto.Result;
 import org.trianglex.common.exception.ApiCode;
-import org.trianglex.common.exception.ApiErrorException;
+import org.trianglex.common.exception.ServiceApiException;
 import org.trianglex.common.security.auth.ApiAuthorization;
 import org.trianglex.common.util.PasswordUtils;
 import org.trianglex.common.util.RegexUtils;
@@ -34,8 +34,8 @@ import java.util.List;
 
 import static org.trianglex.usercentral.api.constant.CommonCode.SUCCESS;
 import static org.trianglex.usercentral.api.constant.UrlConstant.*;
-import static org.trianglex.usercentral.api.constant.UserApiCode.*;
-import static org.trianglex.usercentral.api.constant.UserConstant.SESSION_USER;
+import static org.trianglex.usercentral.api.constant.UasApiCode.*;
+import static org.trianglex.usercentral.api.constant.UasConstant.SESSION_USER;
 import static org.trianglex.usercentral.constant.SystemConstant.SIGN_ERROR;
 
 @RestController
@@ -59,24 +59,24 @@ public class UasController {
 
         // 判断用户名是否存在
         if (userService.isUsernameExists(uasRegisterRequest.getUsername())) {
-            throw new ApiErrorException(USER_NAME_EXISTS);
+            throw new ServiceApiException(USER_NAME_EXISTS);
         }
 
         // 判断昵称是否存在
         if (userService.isNicknameExists(uasRegisterRequest.getNickname())) {
-            throw new ApiErrorException(USER_NICKNAME_EXISTS);
+            throw new ServiceApiException(USER_NICKNAME_EXISTS);
         }
 
         // 判断手机号是否存在
         if (!StringUtils.isEmpty(uasRegisterRequest.getPhone())
                 && userService.isPhoneExists(uasRegisterRequest.getPhone())) {
-            throw new ApiErrorException(USER_PHONE_EXISTS);
+            throw new ServiceApiException(USER_PHONE_EXISTS);
         }
 
         // 有传递邮箱才校验，如果用户名刚好是邮箱，则自动填充邮箱字段
         if (!StringUtils.isEmpty(uasRegisterRequest.getEmail())
                 && !RegexUtils.isMatch(uasRegisterRequest.getEmail(), RegexUtils.EMAIL)) {
-            throw new ApiErrorException(USER_INCORRECT_EMAIL);
+            throw new ServiceApiException(USER_INCORRECT_EMAIL);
         } else if (StringUtils.isEmpty(uasRegisterRequest.getEmail())
                 && RegexUtils.isMatch(uasRegisterRequest.getUsername(), RegexUtils.EMAIL)) {
             uasRegisterRequest.setEmail(uasRegisterRequest.getUsername());
@@ -103,7 +103,7 @@ public class UasController {
             if (!(e instanceof DuplicateKeyException)) {
                 logger.error(e.getMessage(), e);
             }
-            throw new ApiErrorException(USER_REPEAT);
+            throw new ServiceApiException(USER_REPEAT);
         }
 
         HttpSession session = request.getSession();
@@ -123,14 +123,14 @@ public class UasController {
 
         User user = userService.getUserByUsername(uasLoginRequest.getUsername(), "salt");
         if (user == null) {
-            throw new ApiErrorException(USER_NOT_EXISTS);
+            throw new ServiceApiException(USER_NOT_EXISTS);
         }
 
         user = userService.getUserByUsernameAndPassword(uasLoginRequest.getUsername(),
                 PasswordUtils.password(uasLoginRequest.getPassword(), user.getSalt()), "user_id");
 
         if (user == null) {
-            throw new ApiErrorException(USER_NOT_EXISTS);
+            throw new ServiceApiException(USER_NOT_EXISTS);
         }
 
         HttpSession session = request.getSession();
@@ -162,23 +162,23 @@ public class UasController {
                 remoteSessionRequest.getAccessTokenString(), appSecret);
 
         if (accessToken == null) {
-            throw new ApiErrorException(ACCESS_TOKEN_INVALID);
+            throw new ServiceApiException(ACCESS_TOKEN_INVALID);
         }
 
         Session session = repository.findById(accessToken.getSessionId());
         if (session == null) {
-            throw new ApiErrorException(GLOBAL_SESSION_TIMEOUT);
+            throw new ServiceApiException(GLOBAL_SESSION_TIMEOUT);
         }
 
         String accessTokenString = TicketUtils.generateAccessToken(accessToken, appSecret);
 
         if (StringUtils.isEmpty(accessTokenString)) {
-            throw new ApiErrorException(ACCESS_TOKEN_GENERATE_ERROR);
+            throw new ServiceApiException(ACCESS_TOKEN_GENERATE_ERROR);
         }
 
         User user = getUserByUserId(accessToken.getUserId());
         if (user == null) {
-            throw new ApiErrorException(USER_NOT_EXISTS);
+            throw new ServiceApiException(USER_NOT_EXISTS);
         }
 
         List<UserPrivilege> userPrivilegeList = userPrivilegeService.getUserPrivileges(user.getUserId());
@@ -196,14 +196,14 @@ public class UasController {
         String accessTokenString = TicketUtils.generateAccessToken(accessToken, appSecret);
 
         if (StringUtils.isEmpty(accessTokenString)) {
-            throw new ApiErrorException(ACCESS_TOKEN_GENERATE_ERROR);
+            throw new ServiceApiException(ACCESS_TOKEN_GENERATE_ERROR);
         }
 
         Ticket ticket = new Ticket(appKey, accessTokenString);
 
         String ticketString = TicketUtils.generateTicket(ticket, appSecret);
         if (StringUtils.isEmpty(ticketString)) {
-            throw new ApiErrorException(TICKET_GENERATE_ERROR);
+            throw new ServiceApiException(TICKET_GENERATE_ERROR);
         }
 
         return ticketString;
@@ -222,7 +222,7 @@ public class UasController {
         }
 
         if (user == null) {
-            throw new ApiErrorException(USER_NOT_EXISTS);
+            throw new ServiceApiException(USER_NOT_EXISTS);
         }
 
         List<UserPrivilege> userPrivilegeList = userPrivilegeService.getUserPrivileges(user.getUserId());

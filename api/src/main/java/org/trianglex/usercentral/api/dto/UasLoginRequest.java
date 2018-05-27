@@ -4,8 +4,8 @@ import org.trianglex.common.security.auth.ApiAttributes;
 
 import javax.validation.constraints.NotBlank;
 
-import static org.trianglex.usercentral.api.constant.UserConstant.PASSWORD_NOT_BLANK;
-import static org.trianglex.usercentral.api.constant.UserConstant.USERNAME_NOT_BLANK;
+import static org.trianglex.usercentral.api.constant.UasConstant.PASSWORD_NOT_BLANK;
+import static org.trianglex.usercentral.api.constant.UasConstant.USERNAME_NOT_BLANK;
 
 public class UasLoginRequest extends ApiAttributes {
 
