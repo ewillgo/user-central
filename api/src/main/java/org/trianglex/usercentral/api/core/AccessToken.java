@@ -1,4 +1,4 @@
-package org.trianglex.usercentral.api.session;
+package org.trianglex.usercentral.api.core;
 
 import java.time.Duration;
 

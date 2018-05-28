@@ -1,6 +1,6 @@
 package org.trianglex.usercentral.api.dto;
 
-import org.trianglex.usercentral.api.session.UasSession;
+import org.trianglex.usercentral.api.core.UasSession;
 
 public class RemoteSessionResponse {
 

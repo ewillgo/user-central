@@ -1,4 +1,4 @@
-package org.trianglex.usercentral.api.session;
+package org.trianglex.usercentral.api.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,9 +26,9 @@ import static org.trianglex.usercentral.api.constant.CommonCode.SESSION_TIMEOUT;
 import static org.trianglex.usercentral.api.constant.UasConstant.SESSION_USER;
 
 @Import(UasProperties.class)
-public class SessionClientInterceptor extends HandlerInterceptorAdapter {
+public class UasInterceptor extends HandlerInterceptorAdapter {
 
-    private static final Logger logger = LoggerFactory.getLogger(SessionClientInterceptor.class);
+    private static final Logger logger = LoggerFactory.getLogger(UasInterceptor.class);
     private static final String ACCESS_TOKEN_INTERVAL_NAME = "_%s_itv_";
 
     @Autowired

@@ -1,4 +1,4 @@
-package org.trianglex.usercentral.api.session;
+package org.trianglex.usercentral.api.core;
 
 import org.trianglex.usercentral.api.domain.User;
 import org.trianglex.usercentral.api.domain.UserPrivilege;

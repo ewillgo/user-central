@@ -7,8 +7,8 @@ import org.trianglex.common.exception.ServiceApiException;
 import org.trianglex.common.util.AES256Utils;
 import org.trianglex.common.util.DESUtils;
 import org.trianglex.common.util.JsonUtils;
-import org.trianglex.usercentral.api.session.AccessToken;
-import org.trianglex.usercentral.api.session.Ticket;
+import org.trianglex.usercentral.api.core.AccessToken;
+import org.trianglex.usercentral.api.core.Ticket;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
